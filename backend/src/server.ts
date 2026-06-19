@@ -1,31 +1,40 @@
 import express, { Application, NextFunction, Request, Response } from 'express';
-import { readCodebase } from './core/fileReader';
+import cors from 'cors';
+import 'dotenv/config';
+import { runExplorer } from './agents/explorer.js';
+import { readCodebase } from './core/fileReader.js';
 
 const app: Application = express();
-const PROT = 5000;
+const PORT = Number(process.env.PORT) || 5000;
 
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.get('/api/health', (req: Request, res: Response) => {
-    res.status(200).json({ message: 'Server is running' });
+app.get('/api/health', (_req: Request, res: Response) => {
+    res.status(200).json({ status: 'ok' });
 });
 
-app.post('/api/analyze', (req: Request, res: Response) => {
+app.post('/api/analyze', async (req: Request, res: Response) => {
     const path = req.body?.path;
 
     if (!path) {
-        return res.status(400).json({
-            message: 'Path is required',
-            example: { path: 'D:/Assignment' },
-        });
+        return res.status(400).json({ message: 'Path is required' });
     }
 
     try {
-        const codebaseTree = readCodebase(path);
-        return res.status(200).json({ message: 'Codebase tree read successfully', codebaseTree });
-    } catch (err: any) {
-        return res.status(400).json({ message: err.message });
+        const files = readCodebase(path);
+        const explorerReport = await runExplorer(files);
+
+        return res.status(200).json({
+            message: 'Explorer analysis complete',
+            fileCount: files.length,
+            explorerReport,
+        });
+    } catch (err) {
+        const message = err instanceof Error ? err.message : 'Analysis failed';
+        const status = message.includes('GEMINI_API_KEY') ? 503 : 400;
+        return res.status(status).json({ message });
     }
 });
 
@@ -39,6 +48,6 @@ app.use((err: Error, _req: Request, res: Response, next: NextFunction) => {
     next(err);
 });
 
-app.listen(PROT, () => {
-    console.log(`Server is running on port ${PROT}`);
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 });

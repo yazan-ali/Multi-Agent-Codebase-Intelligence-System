@@ -1,7 +1,11 @@
-export interface CodeFile {
+import type { ExplorerOutput } from '../agents/schemas.js';
+
+interface CodeFile {
     name: string;
     content: string;
     language: string;
     size: number;
     lines: number;
 }
+
+export { CodeFile, ExplorerOutput };
