@@ -17,7 +17,6 @@ async function runOrchestrator(
     const manifest = buildManifest(absolutePath, files);
 
     if (await isCacheValid(pathHash, manifest)) {
-        console.log("Cache is valid, replaying cached results");
         return replayCached(pathHash, emit);
     }
 

@@ -105,9 +105,10 @@ async function replayCached(pathHash: string, emit: SSEEmitter): Promise<FinalRe
         throw new Error('Cached session not found');
     }
 
+    await wait(1000); // to simulate the time it takes to run the agent
     emit('status', { agent: 'explorer', status: 'running' });
-
     if (session.explorerReport) {
+        await wait(2000);
         emit('result', { agent: 'explorer', data: session.explorerReport });
         emit('status', { agent: 'explorer', status: 'done' });
     } else {
@@ -115,6 +116,10 @@ async function replayCached(pathHash: string, emit: SSEEmitter): Promise<FinalRe
     }
 
     return session.finalReport;
+}
+
+async function wait(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 export {

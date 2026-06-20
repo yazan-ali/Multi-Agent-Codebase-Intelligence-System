@@ -2,10 +2,10 @@ import { z } from 'zod';
 
 const ExplorerOutputSchema = z.object({
     stack: z.object({
-        language: z.string(),
-        framework: z.string(),
+        languages: z.array(z.string()).min(1),
+        frameworks: z.array(z.string()),
         libraries: z.array(z.string()),
-        testFramework: z.string().nullable(),
+        testFrameworks: z.array(z.string()),
     }),
     entryPoints: z.array(z.string()).min(1),
     dependencyMap: z.record(z.string(), z.array(z.string())),
