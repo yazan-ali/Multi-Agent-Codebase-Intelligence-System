@@ -55,6 +55,7 @@ function readFile(rootPath: string, filePath: string, stat: fs.Stats): CodeFile 
             language: getLanguage(filePath),
             size: stat.size,
             lines: content.split('\n').length,
+            lastModified: stat.mtimeMs,
         };
     } catch {
         return null;

@@ -1,7 +1,8 @@
 import express, { Application, NextFunction, Request, Response } from 'express';
 import cors from 'cors';
 import 'dotenv/config';
-import { runExplorer } from './agents/explorer.js';
+import { runOrchestrator } from './agents/orchestrator.js';
+import { SSEEmitter } from './types/codebase.types.js';
 import { readCodebase } from './core/fileReader.js';
 
 const app: Application = express();
@@ -22,19 +23,23 @@ app.post('/api/analyze', async (req: Request, res: Response) => {
         return res.status(400).json({ message: 'Path is required' });
     }
 
-    try {
-        const files = readCodebase(path);
-        const explorerReport = await runExplorer(files);
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
 
-        return res.status(200).json({
-            message: 'Explorer analysis complete',
-            fileCount: files.length,
-            explorerReport,
-        });
+    const emit: SSEEmitter = (event: string, data: unknown) => {
+        res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
+    };
+
+    try {
+        const codebaseFiles = readCodebase(path);
+        const finalReport = await runOrchestrator(path, codebaseFiles, emit);
+        emit("complete", { finalReport });
+        res.end();
     } catch (err) {
         const message = err instanceof Error ? err.message : 'Analysis failed';
-        const status = message.includes('GEMINI_API_KEY') ? 503 : 400;
-        return res.status(status).json({ message });
+        emit("error", { message });
+        res.end();
     }
 });
 
