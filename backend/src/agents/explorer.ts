@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import type { CodeFile } from '../types/codebase.types.js';
 import { createAgentChat } from '../core/geminiClient.js';
-import { buildAgentMessages, buildExplorerPrompt } from './promptBuilder.js';
+import { buildExplorerPrompt } from './promptBuilder.js';
 import { ExplorerOutputSchema, type ExplorerOutput } from './schemas.js';
 import { validateAgentOutput } from './validateAgentOutput.js';
 import { EXPLORER_SYSTEM_PROMPT } from './systemPrompts.js';
@@ -13,16 +13,15 @@ export async function runExplorer(files: CodeFile[]): Promise<ExplorerOutput> {
         throw new Error('No files to analyze');
     }
 
-    const prompt = buildExplorerPrompt(files);
-    const { system, user } = buildAgentMessages(EXPLORER_SYSTEM_PROMPT, prompt);
+    const userPrompt = buildExplorerPrompt(files);
     const jsonSchema = z.toJSONSchema(ExplorerOutputSchema);
 
     const chat = createAgentChat({
-        systemInstruction: system,
+        systemInstruction: EXPLORER_SYSTEM_PROMPT,
         responseSchema: jsonSchema as Record<string, unknown>,
     });
 
-    const firstResponse = await chat.sendMessage({ message: user });
+    const firstResponse = await chat.sendMessage({ message: userPrompt });
     const firstRaw = firstResponse.text ?? '';
     const firstValidation = validateAgentOutput(ExplorerOutputSchema, firstRaw);
 

@@ -59,5 +59,41 @@ const EngineerOutputSchema = z.object({
 
 type EngineerOutput = z.infer<typeof EngineerOutputSchema>;
 
+const SecurityOutputSchema = z.object({
+    riskScore: z.number().int().min(0).max(100),
+    summary: z.string(),
+    vulnerabilities: z.array(z.object({
+        file: z.string(),
+        line: z.number(),
+        severity: z.enum(["Critical", "High", "Medium", "Low"]),
+        owaspCategory: z.string(),
+        description: z.string(),
+        fix: z.string(),
+    })),
+    hardcodedSecrets: z.array(z.object({
+        file: z.string(),
+        line: z.number(),
+        type: z.string(),
+    })),
+    missingAuthGuards: z.array(z.object({
+        file: z.string(),
+        endpoint: z.string(),
+        description: z.string(),
+    })),
+    insecureDependencies: z.array(z.object({
+        package: z.string(),
+        version: z.string(),
+        reason: z.string(),
+    })),
+});
 
-export { ExplorerOutputSchema, ExplorerOutput, EngineerOutputSchema, EngineerOutput };
+type SecurityOutput = z.infer<typeof SecurityOutputSchema>;
+
+export {
+    ExplorerOutputSchema,
+    ExplorerOutput,
+    EngineerOutputSchema,
+    EngineerOutput,
+    SecurityOutputSchema,
+    SecurityOutput
+};

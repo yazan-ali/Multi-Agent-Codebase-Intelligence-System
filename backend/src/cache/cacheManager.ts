@@ -72,10 +72,11 @@ async function load(pathHash: string): Promise<CachedSession | null> {
     const cacheDir = getCacheDir(pathHash);
 
     try {
-        const [manifestRaw, explorerRaw, engineerRaw, finalReportRaw] = await Promise.all([
+        const [manifestRaw, explorerRaw, engineerRaw, securityRaw, finalReportRaw] = await Promise.all([
             fs.readFile(path.join(cacheDir, 'manifest.json'), 'utf8'),
             fs.readFile(path.join(cacheDir, 'explorer.json'), 'utf8'),
             fs.readFile(path.join(cacheDir, 'engineer.json'), 'utf8'),
+            fs.readFile(path.join(cacheDir, 'security.json'), 'utf8'),
             fs.readFile(path.join(cacheDir, 'finalReport.json'), 'utf8'),
         ]);
 
@@ -83,6 +84,7 @@ async function load(pathHash: string): Promise<CachedSession | null> {
             manifest: JSON.parse(manifestRaw) as CacheManifest,
             explorerReport: JSON.parse(explorerRaw),
             engineerReport: JSON.parse(engineerRaw),
+            securityReport: JSON.parse(securityRaw),
             finalReport: JSON.parse(finalReportRaw) as FinalReport,
         };
     } catch {
@@ -98,6 +100,7 @@ async function save(pathHash: string, session: CachedSession): Promise<void> {
         fs.writeFile(path.join(cacheDir, 'manifest.json'), JSON.stringify(session.manifest, null, 2)),
         fs.writeFile(path.join(cacheDir, 'explorer.json'), JSON.stringify(session.explorerReport, null, 2)),
         fs.writeFile(path.join(cacheDir, 'engineer.json'), JSON.stringify(session.engineerReport, null, 2)),
+        fs.writeFile(path.join(cacheDir, 'security.json'), JSON.stringify(session.securityReport, null, 2)),
         fs.writeFile(path.join(cacheDir, 'finalReport.json'), JSON.stringify(session.finalReport, null, 2)),
     ]);
 }
@@ -122,6 +125,15 @@ async function replayCached(pathHash: string, emit: SSEEmitter): Promise<FinalRe
             emit('status', { agent: 'engineer', status: 'done' });
         } else {
             emit('status', { agent: 'engineer', status: 'failed' });
+        }
+        if (session.securityReport) {
+            await wait(500);
+            emit('status', { agent: 'security', status: 'running' });
+            await wait(1000);
+            emit('result', { agent: 'security', data: session.securityReport });
+            emit('status', { agent: 'security', status: 'done' });
+        } else {
+            emit('status', { agent: 'security', status: 'failed' });
         }
     } else {
         emit('status', { agent: 'explorer', status: 'failed' });

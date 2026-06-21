@@ -5,6 +5,7 @@ import type {
     AnalysisState,
     EngineerOutput,
     ExplorerOutput,
+    SecurityOutput,
     SSECompleteEvent,
     SSEErrorEvent,
     SSEResultEvent,
@@ -21,6 +22,7 @@ const INITIAL_STATE: AnalysisState = {
     agents: INITIAL_AGENTS,
     explorerReport: null,
     engineerReport: null,
+    securityReport: null,
     finalReport: null,
     error: null,
     isAnalyzing: false,
@@ -95,6 +97,11 @@ export function useAnalysis() {
                                 setState((prev) => ({
                                     ...prev,
                                     engineerReport: agentData as EngineerOutput,
+                                }));
+                            } else if (agent === 'security') {
+                                setState((prev) => ({
+                                    ...prev,
+                                    securityReport: agentData as SecurityOutput,
                                 }));
                             }
                             break;

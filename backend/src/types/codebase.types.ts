@@ -1,4 +1,4 @@
-import type { ExplorerOutput, EngineerOutput } from '../agents/schemas.js';
+import type { ExplorerOutput, EngineerOutput, SecurityOutput } from '../agents/schemas.js';
 
 type SSEEmitter = (event: string, data: unknown) => void;
 interface CodeFile {
@@ -27,6 +27,7 @@ interface CachedSession {
     manifest: CacheManifest;
     explorerReport: ExplorerOutput | null;
     engineerReport: EngineerOutput | null;
+    securityReport: SecurityOutput | null;
     finalReport: FinalReport;
 }
 
@@ -40,8 +41,20 @@ interface FinalReport {
     };
     explorerReport: ExplorerOutput | null;
     engineerReport: EngineerOutput | null;
+    securityReport: SecurityOutput | null;
 }
 
 type AgentStatus = "done" | "failed";
 
-export { CodeFile, ExplorerOutput, EngineerOutput, SSEEmitter, FinalReport, CacheManifest, CachedSession, ManifestFileEntry, AgentStatus };
+export {
+    CodeFile,
+    ExplorerOutput,
+    EngineerOutput,
+    SecurityOutput,
+    SSEEmitter,
+    FinalReport,
+    CacheManifest,
+    CachedSession,
+    ManifestFileEntry,
+    AgentStatus
+};

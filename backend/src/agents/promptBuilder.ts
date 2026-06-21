@@ -32,9 +32,15 @@ For testCoverageMap: list only source code files with application logic. Exclude
 Return your analysis as JSON matching the EngineerOutput schema.`;
 }
 
-export function buildAgentMessages(systemPrompt: string, userPrompt: string) {
-    return {
-        system: systemPrompt,
-        user: userPrompt,
-    }
+export function buildSecurityPrompt(files: CodeFile[], explorerReport: ExplorerOutput): string {
+    const formattedFiles = formatFiles(files);
+    return `Analyze the following codebase (${files.length} files) in the context of the Explorer's report:
+
+Here is the codebase files:
+${formattedFiles}
+
+Here is the Explorer's report:
+${JSON.stringify(explorerReport)}
+
+Return your analysis as JSON matching the SecurityOutput schema.`;
 }

@@ -4,6 +4,7 @@ import { PathInput } from './components/PathInput';
 import { AgentConsole, type TabName } from './components/AgentConsole';
 import { ExplorerReport } from './components/reports/ExplorerReport';
 import { EngineerReport } from './components/reports/EngineerReport';
+import { SecurityReport } from './components/reports/SecurityReport';
 import { FinalReport } from './components/reports/FinalReport';
 
 function App() {
@@ -55,8 +56,16 @@ function App() {
                         <EmptyState message="Engineer agent is analyzing code quality..." />
                     )}
 
-                    {activeTab === 'security' && (
-                        <EmptyState message="Security agent not implemented yet." />
+                    {activeTab === 'security' && state.securityReport && (
+                        <SecurityReport report={state.securityReport} />
+                    )}
+
+                    {activeTab === 'security' && !state.securityReport && !state.isAnalyzing && (
+                        <EmptyState message="Run an analysis to see the Security report." />
+                    )}
+
+                    {activeTab === 'security' && state.isAnalyzing && !state.securityReport && (
+                        <EmptyState message="Security agent is scanning for vulnerabilities..." />
                     )}
 
                     {activeTab === 'report' && state.finalReport && (

@@ -1,8 +1,9 @@
 import { z } from 'zod';
 import type { CodeFile } from '../types/codebase.types.js';
 import { createAgentChat } from '../core/geminiClient.js';
-import { buildAgentMessages, buildEngineerPrompt } from './promptBuilder.js';
-import { EngineerOutputSchema, type EngineerOutput } from './schemas.js';
+import { buildEngineerPrompt } from './promptBuilder.js';
+import { EngineerOutputSchema } from './schemas.js';
+import type { EngineerOutput } from './schemas.js';
 import { validateAgentOutput } from './validateAgentOutput.js';
 import { ENGINEER_SYSTEM_PROMPT } from './systemPrompts.js';
 import type { ExplorerOutput } from '../types/codebase.types.js';
@@ -18,16 +19,15 @@ export async function runEngineer(files: CodeFile[], explorerReport: ExplorerOut
         throw new Error('No explorer report to analyze');
     }
 
-    const prompt = buildEngineerPrompt(files, explorerReport);
-    const { system, user } = buildAgentMessages(ENGINEER_SYSTEM_PROMPT, prompt);
+    const userPrompt = buildEngineerPrompt(files, explorerReport);
     const jsonSchema = z.toJSONSchema(EngineerOutputSchema);
 
     const chat = createAgentChat({
-        systemInstruction: system,
+        systemInstruction: ENGINEER_SYSTEM_PROMPT,
         responseSchema: jsonSchema as Record<string, unknown>,
     });
 
-    const firstResponse = await chat.sendMessage({ message: user });
+    const firstResponse = await chat.sendMessage({ message: userPrompt });
     const firstRaw = firstResponse.text ?? '';
     const firstValidation = validateAgentOutput(EngineerOutputSchema, firstRaw);
 

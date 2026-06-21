@@ -58,6 +58,34 @@ export interface EngineerOutput {
     }[];
 }
 
+export interface SecurityOutput {
+    riskScore: number;
+    summary: string;
+    vulnerabilities: {
+        file: string;
+        line: number;
+        severity: 'Critical' | 'High' | 'Medium' | 'Low';
+        owaspCategory: string;
+        description: string;
+        fix: string;
+    }[];
+    hardcodedSecrets: {
+        file: string;
+        line: number;
+        type: string;
+    }[];
+    missingAuthGuards: {
+        file: string;
+        endpoint: string;
+        description: string;
+    }[];
+    insecureDependencies: {
+        package: string;
+        version: string;
+        reason: string;
+    }[];
+}
+
 export interface FinalReport {
     executiveSummary: string;
     topPriorityIssues: string[];
@@ -68,6 +96,7 @@ export interface FinalReport {
     };
     explorerReport: ExplorerOutput | null;
     engineerReport: EngineerOutput | null;
+    securityReport: SecurityOutput | null;
 }
 
 export interface SSEStatusEvent {
@@ -93,6 +122,7 @@ export interface AnalysisState {
     agents: AgentState[];
     explorerReport: ExplorerOutput | null;
     engineerReport: EngineerOutput | null;
+    securityReport: SecurityOutput | null;
     finalReport: FinalReport | null;
     error: string | null;
     isAnalyzing: boolean;
