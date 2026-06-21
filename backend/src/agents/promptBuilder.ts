@@ -29,7 +29,9 @@ ${JSON.stringify(explorerReport)}
 
 For testCoverageMap: list only source code files with application logic. Exclude package.json, README.md, config files, lock files, and test files themselves.
 
-Return your analysis as JSON matching the EngineerOutput schema.`;
+For suggestedTests: one entry per function (unique file + functionName). Put all related test methods in one complete test class in testCode — at most 5 test methods per entry.
+
+Return ONLY a valid JSON object matching the EngineerOutput schema. No markdown fences, no prose outside JSON. Code snippets go in before/after/testCode as escaped JSON strings.`;
 }
 
 export function buildSecurityPrompt(files: CodeFile[], explorerReport: ExplorerOutput): string {

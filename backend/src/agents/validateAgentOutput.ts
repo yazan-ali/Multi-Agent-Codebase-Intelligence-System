@@ -1,5 +1,48 @@
 import { z } from 'zod';
 
+function extractJsonObject(raw: string): string | null {
+    const start = raw.indexOf('{');
+    if (start === -1) return null;
+
+    let depth = 0;
+    let inString = false;
+    let escaped = false;
+
+    for (let i = start; i < raw.length; i++) {
+        const char = raw[i];
+
+        if (inString) {
+            if (escaped) {
+                escaped = false;
+                continue;
+            }
+            if (char === '\\') {
+                escaped = true;
+                continue;
+            }
+            if (char === '"') {
+                inString = false;
+            }
+            continue;
+        }
+
+        if (char === '"') {
+            inString = true;
+            continue;
+        }
+
+        if (char === '{') depth++;
+        if (char === '}') {
+            depth--;
+            if (depth === 0) {
+                return raw.slice(start, i + 1);
+            }
+        }
+    }
+
+    return null;
+}
+
 function extractJson(raw: string): unknown {
     const trimmed = raw.trim();
     const fenced = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i);
@@ -8,7 +51,15 @@ function extractJson(raw: string): unknown {
         return JSON.parse(fenced[1].trim());
     }
 
-    return JSON.parse(trimmed);
+    try {
+        return JSON.parse(trimmed);
+    } catch {
+        const jsonObject = extractJsonObject(trimmed);
+        if (!jsonObject) {
+            throw new Error(`No JSON object found in response. Preview: ${trimmed.slice(0, 120)}`);
+        }
+        return JSON.parse(jsonObject);
+    }
 }
 
 export function validateAgentOutput<T>(

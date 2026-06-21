@@ -86,9 +86,17 @@ export interface SecurityOutput {
     }[];
 }
 
+export interface Issue {
+    source: 'explorer' | 'engineer' | 'security';
+    severity: 'Critical' | 'High' | 'Medium' | 'Low';
+    file: string;
+    line?: number;
+    description: string;
+}
+
 export interface FinalReport {
     executiveSummary: string;
-    topPriorityIssues: string[];
+    topPriorityIssues: Issue[];
     agentStatus: {
         explorer: 'done' | 'failed';
         engineer: 'done' | 'failed';

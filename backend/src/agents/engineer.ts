@@ -40,7 +40,7 @@ export async function runEngineer(files: CodeFile[], explorerReport: ExplorerOut
     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
         const retryResponse = await chat.sendMessage(
             {
-                message: `Your previous response was invalid.\nValidation errors:\n${lastError}\n\nReturn ONLY valid JSON matching the EngineerOutput schema.`
+                message: `Your previous response was invalid.\nValidation errors:\n${lastError}\n\nReturn ONLY a single JSON object matching the EngineerOutput schema. Start with { and end with }. No markdown fences, no prose, no raw source files outside JSON string fields.`
             });
 
         const retryRaw = retryResponse.text ?? '';

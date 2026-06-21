@@ -5,7 +5,8 @@ import {
     FinalReport,
     EngineerOutput,
     AgentStatus,
-    SecurityOutput
+    SecurityOutput,
+    Issue,
 } from "../types/codebase.types.js";
 import { runExplorer } from "./explorer.js";
 import { runEngineer } from "./engineer.js";
@@ -52,35 +53,40 @@ async function runOrchestrator(
 
     if (explorerStatus === "done" && explorerReport) {
         emit("status", { agent: "engineer", status: "running" });
-        try {
-            engineerReport = await runEngineer(files, explorerReport);
-            engineerStatus = "done";
-            emit('result', { agent: "engineer", data: engineerReport });
-            emit('status', { agent: 'engineer', status: 'done' });
-        } catch (error) {
-            const message = error instanceof Error ? error.message : "Engineer failed";
-            emit('status', { agent: 'engineer', status: 'failed' });
-            emit('error', { agent: 'engineer', message });
-        }
-    }
-
-    if (explorerStatus === "done" && explorerReport) {
         emit("status", { agent: "security", status: "running" });
-        try {
-            securityReport = await runSecurity(files, explorerReport);
-            securityStatus = "done";
-            emit('result', { agent: "security", data: securityReport });
-            emit('status', { agent: 'security', status: 'done' });
-        } catch (error) {
-            const message = error instanceof Error ? error.message : "Security failed";
-            emit('status', { agent: 'security', status: 'failed' });
-            emit('error', { agent: 'security', message });
-        }
+
+        const engineerPromise = runEngineer(files, explorerReport)
+            .then((result) => {
+                engineerReport = result;
+                engineerStatus = "done";
+                emit('result', { agent: "engineer", data: engineerReport });
+                emit('status', { agent: 'engineer', status: 'done' });
+            })
+            .catch((error) => {
+                const message = error instanceof Error ? error.message : "Engineer failed";
+                emit('status', { agent: 'engineer', status: 'failed' });
+                emit('error', { agent: 'engineer', message });
+            });
+
+        const securityPromise = runSecurity(files, explorerReport)
+            .then((result) => {
+                securityReport = result;
+                securityStatus = "done";
+                emit('result', { agent: "security", data: securityReport });
+                emit('status', { agent: 'security', status: 'done' });
+            })
+            .catch((error) => {
+                const message = error instanceof Error ? error.message : "Security failed";
+                emit('status', { agent: 'security', status: 'failed' });
+                emit('error', { agent: 'security', message });
+            });
+
+        await Promise.all([engineerPromise, securityPromise]);
     }
 
     const finalReport: FinalReport = {
         executiveSummary: explorerReport?.architectureSummary ?? "Analysis failed — Explorer could not complete.",
-        topPriorityIssues: explorerReport?.highCouplingFlags ?? [], // temporary - TODO: Should return Issue[]
+        topPriorityIssues: aggregateTopIssues(explorerReport, engineerReport, securityReport),
         agentStatus: {
             explorer: explorerStatus,
             engineer: engineerStatus,
@@ -96,6 +102,61 @@ async function runOrchestrator(
     }
 
     return finalReport;
+}
+
+const SEVERITY_ORDER: Record<Issue['severity'], number> = {
+    Critical: 0,
+    High: 1,
+    Medium: 2,
+    Low: 3,
+};
+
+function aggregateTopIssues(
+    explorer: ExplorerOutput | null,
+    engineer: EngineerOutput | null,
+    security: SecurityOutput | null,
+    limit = 10,
+): Issue[] {
+    const issues: Issue[] = [];
+
+    if (security) {
+        for (const v of security.vulnerabilities) {
+            issues.push({
+                source: 'security',
+                severity: v.severity,
+                file: v.file,
+                line: v.line,
+                description: `${v.owaspCategory} — ${v.description}`,
+            });
+        }
+    }
+
+    if (engineer) {
+        for (const issue of engineer.issues) {
+            issues.push({
+                source: 'engineer',
+                severity: issue.priority,
+                file: issue.file,
+                line: issue.line,
+                description: `${issue.category} — ${issue.description}`,
+            });
+        }
+    }
+
+    if (explorer) {
+        for (const file of explorer.highCouplingFlags) {
+            issues.push({
+                source: 'explorer',
+                severity: 'Medium',
+                file,
+                description: 'High coupling detected — too many dependencies or tight coupling with other modules',
+            });
+        }
+    }
+
+    issues.sort((a, b) => SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity]);
+
+    return issues.slice(0, limit);
 }
 
 export { runOrchestrator };

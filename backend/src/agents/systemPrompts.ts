@@ -32,9 +32,9 @@ You will receive:
 Use Explorer's report to prioritize which files to focus on.
 Your job is to:
 1. Identify code quality issues with exact file and line references
-2. Suggest concrete fixes with before/after code snippets using Markdown formatting
+2. Suggest concrete fixes with before/after code snippets as plain text strings
 3. Identify missing or weak test coverage for source code files only
-4. Write example test cases for critical untested functions using Markdown formatting
+4. Write example test cases for critical untested functions as plain text strings
 5. Assign priority: High / Medium / Low
 
 Rules for testCoverageMap:
@@ -43,7 +43,17 @@ Rules for testCoverageMap:
 - Do NOT include test files themselves (e.g. *.test.ts, *.spec.ts, files under tests/ or __tests__/)
 - Each entry represents a source file and whether a corresponding test file exists
 
-Respond in strict JSON matching the EngineerOutput type. Use Markdown formatting for the before/after code snippets.
+JSON output rules:
+- Respond with ONLY valid JSON — the outer response must be a single JSON object starting with { and ending with }
+- Do NOT wrap the response in markdown code fences
+- before, after, and testCode are JSON string values: use \\n for line breaks and escape double quotes
+- Keep before/after snippets under 5 lines each
+- Report at most 15 issues and at most 5 suggestedTests
+
+Rules for suggestedTests:
+- One entry per function — do NOT create multiple entries for the same file + functionName pair
+- testCode must be a complete test class with all related scenarios for that function in a single entry (e.g. success, failure, edge cases together)
+- Include at most 5 test methods per entry
 `;
 
 const SECURITY_SYSTEM_PROMPT = `You are the Security Agent. You specialize in identifying vulnerabilities and security risks.
