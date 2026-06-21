@@ -3,6 +3,7 @@ import { useAnalysis } from './hooks/useAnalysis';
 import { PathInput } from './components/PathInput';
 import { AgentConsole, type TabName } from './components/AgentConsole';
 import { ExplorerReport } from './components/reports/ExplorerReport';
+import { EngineerReport } from './components/reports/EngineerReport';
 import { FinalReport } from './components/reports/FinalReport';
 
 function App() {
@@ -42,8 +43,16 @@ function App() {
                         <EmptyState message="Explorer agent is analyzing the codebase..." />
                     )}
 
-                    {activeTab === 'engineer' && (
-                        <EmptyState message="Engineer agent not implemented yet." />
+                    {activeTab === 'engineer' && state.engineerReport && (
+                        <EngineerReport report={state.engineerReport} />
+                    )}
+
+                    {activeTab === 'engineer' && !state.engineerReport && !state.isAnalyzing && (
+                        <EmptyState message="Run an analysis to see the Engineer report." />
+                    )}
+
+                    {activeTab === 'engineer' && state.isAnalyzing && !state.engineerReport && (
+                        <EmptyState message="Engineer agent is analyzing code quality..." />
                     )}
 
                     {activeTab === 'security' && (

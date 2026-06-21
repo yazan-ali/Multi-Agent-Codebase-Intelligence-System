@@ -3,6 +3,7 @@ import type {
     AgentName,
     AgentState,
     AnalysisState,
+    EngineerOutput,
     ExplorerOutput,
     SSECompleteEvent,
     SSEErrorEvent,
@@ -19,6 +20,7 @@ const INITIAL_AGENTS: AgentState[] = [
 const INITIAL_STATE: AnalysisState = {
     agents: INITIAL_AGENTS,
     explorerReport: null,
+    engineerReport: null,
     finalReport: null,
     error: null,
     isAnalyzing: false,
@@ -88,6 +90,11 @@ export function useAnalysis() {
                                 setState((prev) => ({
                                     ...prev,
                                     explorerReport: agentData as ExplorerOutput,
+                                }));
+                            } else if (agent === 'engineer') {
+                                setState((prev) => ({
+                                    ...prev,
+                                    engineerReport: agentData as EngineerOutput,
                                 }));
                             }
                             break;

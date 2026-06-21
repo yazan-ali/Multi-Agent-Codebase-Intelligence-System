@@ -28,4 +28,36 @@ const ExplorerOutputSchema = z.object({
 
 type ExplorerOutput = z.infer<typeof ExplorerOutputSchema>;
 
-export { ExplorerOutputSchema, ExplorerOutput };
+const EngineerOutputSchema = z.object({
+    overallScore: z.number().int().min(0).max(100),
+    categoryScores: z.object({
+        readability: z.number().int().min(0).max(100),
+        testCoverage: z.number().int().min(0).max(100),
+        duplication: z.number().int().min(0).max(100),
+        patterns: z.number().int().min(0).max(100),
+    }),
+    issues: z.array(z.object({
+        file: z.string(),
+        line: z.number(),
+        priority: z.enum(["High", "Medium", "Low"]),
+        category: z.string(),
+        description: z.string(),
+        before: z.string(),
+        after: z.string(),
+    })),
+    testCoverageMap: z.array(z.object({
+        file: z.string(),
+        hasTests: z.boolean(),
+        testFile: z.string().nullable(),
+    })),
+    suggestedTests: z.array(z.object({
+        file: z.string(),
+        functionName: z.string(),
+        testCode: z.string(),
+    })),
+});
+
+type EngineerOutput = z.infer<typeof EngineerOutputSchema>;
+
+
+export { ExplorerOutputSchema, ExplorerOutput, EngineerOutputSchema, EngineerOutput };

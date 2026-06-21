@@ -1,5 +1,6 @@
-import { CodeFile, ExplorerOutput, SSEEmitter, FinalReport } from "../types/codebase.types.js";
+import { CodeFile, ExplorerOutput, SSEEmitter, FinalReport, EngineerOutput, AgentStatus } from "../types/codebase.types.js";
 import { runExplorer } from "./explorer.js";
+import { runEngineer } from "./engineer.js";
 import {
     hashPath,
     buildManifest,
@@ -23,7 +24,9 @@ async function runOrchestrator(
     emit("status", { agent: "explorer", status: "running" });
 
     let explorerReport: ExplorerOutput | null = null;
-    let explorerStatus: "done" | "failed" = "failed";
+    let engineerReport: EngineerOutput | null = null;
+    let explorerStatus: AgentStatus = "failed";
+    let engineerStatus: AgentStatus = "failed";
 
     try {
         explorerReport = await runExplorer(files);
@@ -36,22 +39,34 @@ async function runOrchestrator(
         emit("error", { agent: "explorer", message });
     }
 
-    // TODO: Run Engineer + Security in parallel (once implemented)
-    // Both depend on explorerReport — skip if Explorer failed
+    if (explorerStatus === "done" && explorerReport) {
+        emit("status", { agent: "engineer", status: "running" });
+        try {
+            engineerReport = await runEngineer(files, explorerReport);
+            engineerStatus = "done";
+            emit('result', { agent: "engineer", data: engineerReport });
+            emit('status', { agent: 'engineer', status: 'done' });
+        } catch (error) {
+            const message = error instanceof Error ? error.message : "Engineer failed";
+            emit('status', { agent: 'engineer', status: 'failed' });
+            emit('error', { agent: 'engineer', message });
+        }
+    }
 
     const finalReport: FinalReport = {
         executiveSummary: explorerReport?.architectureSummary ?? "Analysis failed — Explorer could not complete.",
         topPriorityIssues: explorerReport?.highCouplingFlags ?? [], // temporary - TODO: Should return Issue[]
         agentStatus: {
             explorer: explorerStatus,
-            engineer: "failed",
+            engineer: engineerStatus,
             security: "failed",
         },
         explorerReport,
+        engineerReport,
     };
 
     if (explorerStatus === "done" && explorerReport) {
-        await save(pathHash, { manifest, explorerReport, finalReport });
+        await save(pathHash, { manifest, explorerReport, engineerReport, finalReport });
     }
 
     return finalReport;

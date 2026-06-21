@@ -1,9 +1,10 @@
 import { z } from 'zod';
 import type { CodeFile } from '../types/codebase.types.js';
 import { createAgentChat } from '../core/geminiClient.js';
-import { buildExplorerMessages } from './promptBuilder.js';
+import { buildAgentMessages, buildExplorerPrompt } from './promptBuilder.js';
 import { ExplorerOutputSchema, type ExplorerOutput } from './schemas.js';
 import { validateAgentOutput } from './validateAgentOutput.js';
+import { EXPLORER_SYSTEM_PROMPT } from './systemPrompts.js';
 
 const MAX_RETRIES = 3;
 
@@ -12,7 +13,8 @@ export async function runExplorer(files: CodeFile[]): Promise<ExplorerOutput> {
         throw new Error('No files to analyze');
     }
 
-    const { system, user } = buildExplorerMessages(files);
+    const prompt = buildExplorerPrompt(files);
+    const { system, user } = buildAgentMessages(EXPLORER_SYSTEM_PROMPT, prompt);
     const jsonSchema = z.toJSONSchema(ExplorerOutputSchema);
 
     const chat = createAgentChat({

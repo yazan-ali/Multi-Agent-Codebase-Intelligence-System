@@ -1,4 +1,4 @@
-import { GoogleGenAI, type Chat, type GenerateContentConfig } from '@google/genai';
+import { GoogleGenAI, type Chat } from '@google/genai';
 
 const DEFAULT_MODEL = 'gemini-2.5-flash';
 

@@ -29,6 +29,35 @@ export interface ExplorerOutput {
     highCouplingFlags: string[];
 }
 
+export interface EngineerOutput {
+    overallScore: number;
+    categoryScores: {
+        readability: number;
+        testCoverage: number;
+        duplication: number;
+        patterns: number;
+    };
+    issues: {
+        file: string;
+        line: number;
+        priority: 'High' | 'Medium' | 'Low';
+        category: string;
+        description: string;
+        before: string;
+        after: string;
+    }[];
+    testCoverageMap: {
+        file: string;
+        hasTests: boolean;
+        testFile: string | null;
+    }[];
+    suggestedTests: {
+        file: string;
+        functionName: string;
+        testCode: string;
+    }[];
+}
+
 export interface FinalReport {
     executiveSummary: string;
     topPriorityIssues: string[];
@@ -38,6 +67,7 @@ export interface FinalReport {
         security: 'done' | 'failed';
     };
     explorerReport: ExplorerOutput | null;
+    engineerReport: EngineerOutput | null;
 }
 
 export interface SSEStatusEvent {
@@ -62,6 +92,7 @@ export interface SSEErrorEvent {
 export interface AnalysisState {
     agents: AgentState[];
     explorerReport: ExplorerOutput | null;
+    engineerReport: EngineerOutput | null;
     finalReport: FinalReport | null;
     error: string | null;
     isAnalyzing: boolean;
