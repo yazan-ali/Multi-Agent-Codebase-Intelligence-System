@@ -117,24 +117,29 @@ async function replayCached(pathHash: string, emit: SSEEmitter): Promise<FinalRe
         await wait(2000);
         emit('result', { agent: 'explorer', data: session.explorerReport });
         emit('status', { agent: 'explorer', status: 'done' });
-        if (session.engineerReport) {
-            await wait(500);
-            emit('status', { agent: 'engineer', status: 'running' });
-            await wait(1000);
-            emit('result', { agent: 'engineer', data: session.engineerReport });
-            emit('status', { agent: 'engineer', status: 'done' });
-        } else {
-            emit('status', { agent: 'engineer', status: 'failed' });
-        }
-        if (session.securityReport) {
-            await wait(500);
-            emit('status', { agent: 'security', status: 'running' });
-            await wait(1000);
-            emit('result', { agent: 'security', data: session.securityReport });
-            emit('status', { agent: 'security', status: 'done' });
-        } else {
-            emit('status', { agent: 'security', status: 'failed' });
-        }
+
+        emit('status', { agent: 'engineer', status: 'running' });
+        emit('status', { agent: 'security', status: 'running' });
+
+        const engineerPromise = session.engineerReport
+            ? wait(1000).then(() => {
+                emit('result', { agent: 'engineer', data: session.engineerReport });
+                emit('status', { agent: 'engineer', status: 'done' });
+            })
+            : Promise.resolve().then(() => {
+                emit('status', { agent: 'engineer', status: 'failed' });
+            });
+
+        const securityPromise = session.securityReport
+            ? wait(1000).then(() => {
+                emit('result', { agent: 'security', data: session.securityReport });
+                emit('status', { agent: 'security', status: 'done' });
+            })
+            : Promise.resolve().then(() => {
+                emit('status', { agent: 'security', status: 'failed' });
+            });
+
+        await Promise.all([engineerPromise, securityPromise]);
     } else {
         emit('status', { agent: 'explorer', status: 'failed' });
     }
