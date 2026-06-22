@@ -1,9 +1,15 @@
 import { useState } from 'react';
-import type { EngineerOutput } from '../../types/agent.types';
+import type { EngineerOutput, ApplyChangeRequest, ApplyChangeResponse } from '../../types/agent.types';
 import { SectionPanel } from '../SectionPanel';
+
+type ApplyFn = (req: ApplyChangeRequest) => Promise<ApplyChangeResponse>;
+type ApplyStatus = 'idle' | 'applying' | 'applied' | 'failed';
 
 interface EngineerReportProps {
     report: EngineerOutput;
+    codebasePath: string | null;
+    applyChange: ApplyFn;
+    appliedChanges: Set<string>;
 }
 
 const PRIORITY_STYLES = {
@@ -119,8 +125,73 @@ function CodeBlock({ code }: { code: string }) {
     );
 }
 
-function IssueCard({ issue }: { issue: EngineerOutput['issues'][number] }) {
+function ApplyButton({ status, label, onClick, errorMessage }: {
+    status: ApplyStatus;
+    label: string;
+    onClick: () => void;
+    errorMessage: string | null;
+}) {
+    if (status === 'applied') {
+        return (
+            <span className="inline-flex items-center gap-1.5 text-xs text-emerald-400 font-medium">
+                <span>&#10003;</span> Applied
+            </span>
+        );
+    }
+
+    return (
+        <div className="flex items-center gap-2">
+            <button
+                onClick={onClick}
+                disabled={status === 'applying'}
+                className="rounded bg-blue-600 px-3 py-1 text-xs font-medium text-white transition-colors hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+                {status === 'applying' ? 'Applying...' : label}
+            </button>
+            {status === 'failed' && errorMessage && (
+                <span className="text-xs text-red-400">{errorMessage}</span>
+            )}
+        </div>
+    );
+}
+
+function issueKey(issue: EngineerOutput['issues'][number]): string {
+    return `issue-fix:${issue.file}:${issue.before.slice(0, 40)}`;
+}
+
+function testKey(test: EngineerOutput['suggestedTests'][number]): string {
+    return `test-file:${test.targetTestFile}`;
+}
+
+function IssueCard({ issue, codebasePath, applyChange, isApplied }: {
+    issue: EngineerOutput['issues'][number];
+    codebasePath: string | null;
+    applyChange: ApplyFn;
+    isApplied: boolean;
+}) {
     const [expanded, setExpanded] = useState(false);
+    const [status, setStatus] = useState<ApplyStatus>(isApplied ? 'applied' : 'idle');
+    const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+    const handleApply = async () => {
+        if (!codebasePath) return;
+        setStatus('applying');
+        setErrorMsg(null);
+        const res = await applyChange({
+            codebasePath,
+            type: 'issue-fix',
+            file: issue.file,
+            description: issue.description,
+            before: issue.before,
+            after: issue.after,
+        });
+        if (res.success) {
+            setStatus('applied');
+        } else {
+            setStatus('failed');
+            setErrorMsg(res.message);
+        }
+    };
 
     return (
         <div className="rounded border border-gray-700 bg-gray-800/50">
@@ -153,13 +224,28 @@ function IssueCard({ issue }: { issue: EngineerOutput['issues'][number] }) {
                         <span className="text-[10px] uppercase font-semibold text-emerald-400 tracking-wider">After</span>
                         <CodeBlock code={issue.after} />
                     </div>
+                    {codebasePath && (
+                        <div className="pt-1">
+                            <ApplyButton
+                                status={status}
+                                label="Apply Fix"
+                                onClick={handleApply}
+                                errorMessage={errorMsg}
+                            />
+                        </div>
+                    )}
                 </div>
             )}
         </div>
     );
 }
 
-function IssuesList({ issues }: { issues: EngineerOutput['issues'] }) {
+function IssuesList({ issues, codebasePath, applyChange, appliedChanges }: {
+    issues: EngineerOutput['issues'];
+    codebasePath: string | null;
+    applyChange: ApplyFn;
+    appliedChanges: Set<string>;
+}) {
     const grouped = new Map<string, EngineerOutput['issues']>();
     for (const issue of issues) {
         const existing = grouped.get(issue.file) ?? [];
@@ -181,7 +267,13 @@ function IssuesList({ issues }: { issues: EngineerOutput['issues'] }) {
                     <h4 className="text-sm font-medium text-gray-200 font-mono mb-2">{file}</h4>
                     <div className="space-y-1.5">
                         {fileIssues.map((issue, i) => (
-                            <IssueCard key={`${issue.file}-${issue.line}-${i}`} issue={issue} />
+                            <IssueCard
+                                key={`${issue.file}-${issue.line}-${i}`}
+                                issue={issue}
+                                codebasePath={codebasePath}
+                                applyChange={applyChange}
+                                isApplied={appliedChanges.has(issueKey(issue))}
+                            />
                         ))}
                     </div>
                 </div>
@@ -229,34 +321,76 @@ function TestCoverageMap({ coverageMap }: { coverageMap: EngineerOutput['testCov
     );
 }
 
-function SuggestedTestCard({ test }: { test: EngineerOutput['suggestedTests'][number] }) {
+function SuggestedTestCard({ test, codebasePath, applyChange, isApplied }: {
+    test: EngineerOutput['suggestedTests'][number];
+    codebasePath: string | null;
+    applyChange: ApplyFn;
+    isApplied: boolean;
+}) {
     const [expanded, setExpanded] = useState(false);
+    const [status, setStatus] = useState<ApplyStatus>(isApplied ? 'applied' : 'idle');
+    const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+    const handleApply = async () => {
+        if (!codebasePath) return;
+        setStatus('applying');
+        setErrorMsg(null);
+        const res = await applyChange({
+            codebasePath,
+            type: 'test-file',
+            file: test.file,
+            targetTestFile: test.targetTestFile,
+            testCode: test.testCode,
+        });
+        if (res.success) {
+            setStatus('applied');
+        } else {
+            setStatus('failed');
+            setErrorMsg(res.message);
+        }
+    };
 
     return (
         <div className="rounded border border-gray-700 bg-gray-800/50">
             <button
                 onClick={() => setExpanded(!expanded)}
-                className="w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-gray-800 transition-colors"
+                className="w-full flex items-start gap-3 px-3 py-2.5 text-left hover:bg-gray-800 transition-colors"
             >
-                <span className="text-purple-400 text-sm">λ</span>
+                <span className="text-purple-400 text-sm mt-0.5">λ</span>
                 <div className="flex-1 min-w-0">
                     <span className="text-sm text-gray-200 font-mono">{test.functionName}</span>
                     <span className="text-xs text-gray-500 ml-2">in {test.file}</span>
+                    <div className="text-xs text-gray-500 font-mono mt-0.5">→ {test.targetTestFile}</div>
                 </div>
-                <span className="text-gray-500 text-xs shrink-0">
+                <span className="text-gray-500 text-xs mt-1 shrink-0">
                     {expanded ? '▲' : '▼'}
                 </span>
             </button>
             {expanded && (
-                <div className="border-t border-gray-700 px-3 py-3">
+                <div className="border-t border-gray-700 px-3 py-3 space-y-2">
                     <CodeBlock code={test.testCode} />
+                    {codebasePath && (
+                        <div className="pt-1">
+                            <ApplyButton
+                                status={status}
+                                label="Write Test"
+                                onClick={handleApply}
+                                errorMessage={errorMsg}
+                            />
+                        </div>
+                    )}
                 </div>
             )}
         </div>
     );
 }
 
-function SuggestedTests({ tests }: { tests: EngineerOutput['suggestedTests'] }) {
+function SuggestedTests({ tests, codebasePath, applyChange, appliedChanges }: {
+    tests: EngineerOutput['suggestedTests'];
+    codebasePath: string | null;
+    applyChange: ApplyFn;
+    appliedChanges: Set<string>;
+}) {
     if (tests.length === 0) {
         return <p className="text-sm text-gray-500">No test suggestions available.</p>;
     }
@@ -264,13 +398,19 @@ function SuggestedTests({ tests }: { tests: EngineerOutput['suggestedTests'] }) 
     return (
         <div className="space-y-1.5">
             {tests.map((test, i) => (
-                <SuggestedTestCard key={`${test.file}-${test.functionName}-${i}`} test={test} />
+                <SuggestedTestCard
+                    key={`${test.file}-${test.functionName}-${i}`}
+                    test={test}
+                    codebasePath={codebasePath}
+                    applyChange={applyChange}
+                    isApplied={appliedChanges.has(testKey(test))}
+                />
             ))}
         </div>
     );
 }
 
-export function EngineerReport({ report }: EngineerReportProps) {
+export function EngineerReport({ report, codebasePath, applyChange, appliedChanges }: EngineerReportProps) {
     return (
         <div className="space-y-4">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -293,7 +433,12 @@ export function EngineerReport({ report }: EngineerReportProps) {
             </div>
 
             <SectionPanel title="Issues">
-                <IssuesList issues={report.issues} />
+                <IssuesList
+                    issues={report.issues}
+                    codebasePath={codebasePath}
+                    applyChange={applyChange}
+                    appliedChanges={appliedChanges}
+                />
             </SectionPanel>
 
             <SectionPanel title="Test Coverage">
@@ -301,7 +446,12 @@ export function EngineerReport({ report }: EngineerReportProps) {
             </SectionPanel>
 
             <SectionPanel title="Suggested Tests">
-                <SuggestedTests tests={report.suggestedTests} />
+                <SuggestedTests
+                    tests={report.suggestedTests}
+                    codebasePath={codebasePath}
+                    applyChange={applyChange}
+                    appliedChanges={appliedChanges}
+                />
             </SectionPanel>
         </div>
     );

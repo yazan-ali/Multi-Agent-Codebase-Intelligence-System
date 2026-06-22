@@ -29,7 +29,7 @@ ${JSON.stringify(explorerReport)}
 
 For testCoverageMap: list only source code files with application logic. Exclude package.json, README.md, config files, lock files, and test files themselves.
 
-For suggestedTests: one entry per function (unique file + functionName). Put all related test methods in one complete test class in testCode — at most 5 test methods per entry.
+For suggestedTests: one entry per function (unique file + functionName). Put all related test methods in one complete test class in testCode — at most 5 test methods per entry. Include targetTestFile with the relative path where the test file should be written.
 
 Return ONLY a valid JSON object matching the EngineerOutput schema. No markdown fences, no prose outside JSON. Code snippets go in before/after/testCode as escaped JSON strings.`;
 }

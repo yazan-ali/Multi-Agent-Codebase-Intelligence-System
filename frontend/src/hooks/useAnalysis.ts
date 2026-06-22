@@ -3,6 +3,8 @@ import type {
     AgentName,
     AgentState,
     AnalysisState,
+    ApplyChangeRequest,
+    ApplyChangeResponse,
     EngineerOutput,
     ExplorerOutput,
     SecurityOutput,
@@ -20,12 +22,14 @@ const INITIAL_AGENTS: AgentState[] = [
 
 const INITIAL_STATE: AnalysisState = {
     agents: INITIAL_AGENTS,
+    codebasePath: null,
     explorerReport: null,
     engineerReport: null,
     securityReport: null,
     finalReport: null,
     error: null,
     isAnalyzing: false,
+    appliedChanges: new Set<string>(),
 };
 
 export function useAnalysis() {
@@ -44,7 +48,7 @@ export function useAnalysis() {
         const controller = new AbortController();
         abortRef.current = controller;
 
-        setState({ ...INITIAL_STATE, isAnalyzing: true });
+        setState({ ...INITIAL_STATE, isAnalyzing: true, codebasePath: path, appliedChanges: new Set() });
 
         try {
             const res = await fetch('/api/analyze', {
@@ -134,5 +138,29 @@ export function useAnalysis() {
         }
     }, [updateAgent]);
 
-    return { state, analyze };
+    const applyChange = useCallback(async (request: ApplyChangeRequest): Promise<ApplyChangeResponse> => {
+        try {
+            const res = await fetch('/api/apply-change', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(request),
+            });
+            const data = (await res.json()) as ApplyChangeResponse;
+            if (data.success) {
+                const key = request.type === 'issue-fix'
+                    ? `issue-fix:${request.file}:${request.before?.slice(0, 40)}`
+                    : `test-file:${request.targetTestFile}`;
+                setState((prev) => {
+                    const next = new Set(prev.appliedChanges);
+                    next.add(key);
+                    return { ...prev, appliedChanges: next };
+                });
+            }
+            return data;
+        } catch (err) {
+            return { success: false, file: request.file, message: (err as Error).message };
+        }
+    }, []);
+
+    return { state, analyze, applyChange };
 }

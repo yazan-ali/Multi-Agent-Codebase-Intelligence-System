@@ -54,6 +54,7 @@ export interface EngineerOutput {
     suggestedTests: {
         file: string;
         functionName: string;
+        targetTestFile: string;
         testCode: string;
     }[];
 }
@@ -126,12 +127,31 @@ export interface SSEErrorEvent {
     message: string;
 }
 
+export interface ApplyChangeRequest {
+    codebasePath: string;
+    type: 'issue-fix' | 'test-file';
+    file: string;
+    description?: string;
+    before?: string;
+    after?: string;
+    targetTestFile?: string;
+    testCode?: string;
+}
+
+export interface ApplyChangeResponse {
+    success: boolean;
+    file: string;
+    message: string;
+}
+
 export interface AnalysisState {
     agents: AgentState[];
+    codebasePath: string | null;
     explorerReport: ExplorerOutput | null;
     engineerReport: EngineerOutput | null;
     securityReport: SecurityOutput | null;
     finalReport: FinalReport | null;
     error: string | null;
     isAnalyzing: boolean;
+    appliedChanges: Set<string>;
 }

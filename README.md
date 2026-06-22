@@ -97,6 +97,19 @@ Scans for vulnerabilities and attack surface, prioritizing files that handle aut
 
 **Powers:** risk gauge, severity breakdown, OWASP category chart, secrets and auth-guard panels.
 
+### Apply Fix — on-demand code patcher
+
+Runs when you accept an Engineer issue fix from the UI. It is not part of the analysis pipeline.
+
+| Input | What it does |
+| ----- | ------------ |
+| Full source file | Reads the file from disk |
+| Issue description + before/after preview | Applies the fix across the whole file, not just the snippet shown in the report |
+
+Engineer issues show short before/after previews. A rename or refactor often affects more than those lines. Apply Fix uses Gemini to return the complete corrected file and writes it back.
+
+**Powers:** **Apply Fix** button on Engineer issues — one click to patch the codebase.
+
 ## The dashboard
 
 Four tabs, each fed by one agent or the aggregation layer:
@@ -107,7 +120,7 @@ Walk the codebase structure visually — dependency graph with layer colors and 
 
 ### Engineer tab
 
-See quality at a glance, drill into issues grouped by file with before/after snippets, check which source files lack tests, and browse generated test suggestions.
+See quality at a glance, drill into issues grouped by file with before/after snippets, and apply fixes with the Apply Fix agent.
 
 ### Security tab
 
@@ -142,7 +155,7 @@ Agent outputs are **cached per codebase path**. On re-analysis, the system compa
 
 ## Tech stack
 
-React + TypeScript + Tailwind on the frontend. Node + Express + TypeScript on the backend. Gemini 2.5 Flash for agent calls. React Flow for dependency graphs. Zod for validation. SSE for streaming.
+React + TypeScript + Tailwind on the frontend. Node + Express + TypeScript on the backend. Gemini 2.5 Flash for agent calls (Explorer, Engineer, Security, Apply Fix). React Flow for dependency graphs. Zod for validation. SSE for streaming.
 
 ## Quick start
 

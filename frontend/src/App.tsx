@@ -8,7 +8,7 @@ import { SecurityReport } from './components/reports/SecurityReport';
 import { FinalReport } from './components/reports/FinalReport';
 
 function App() {
-    const { state, analyze } = useAnalysis();
+    const { state, analyze, applyChange } = useAnalysis();
     const [activeTab, setActiveTab] = useState<TabName>('explorer');
 
     return (
@@ -45,7 +45,12 @@ function App() {
                     )}
 
                     {activeTab === 'engineer' && state.engineerReport && (
-                        <EngineerReport report={state.engineerReport} />
+                        <EngineerReport
+                            report={state.engineerReport}
+                            codebasePath={state.codebasePath}
+                            applyChange={applyChange}
+                            appliedChanges={state.appliedChanges}
+                        />
                     )}
 
                     {activeTab === 'engineer' && !state.engineerReport && !state.isAnalyzing && (

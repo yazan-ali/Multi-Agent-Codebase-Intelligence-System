@@ -52,6 +52,14 @@ interface FinalReport {
     securityReport: SecurityOutput | null;
 }
 
+interface ApplyFixInput {
+    fileContent: string;
+    filePath: string;
+    description: string;
+    before: string;
+    after: string;
+}
+
 type AgentStatus = "done" | "failed";
 
 export {
@@ -65,5 +73,6 @@ export {
     CacheManifest,
     CachedSession,
     ManifestFileEntry,
+    ApplyFixInput,
     AgentStatus
 };

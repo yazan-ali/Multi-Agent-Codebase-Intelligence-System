@@ -41,3 +41,18 @@ export function createAgentChat(config: AgentConfig): Chat {
         },
     });
 }
+
+export async function generateText(systemInstruction: string, prompt: string): Promise<string> {
+    const ai = getAI();
+
+    const response = await ai.models.generateContent({
+        model: getModelName(),
+        config: {
+            systemInstruction,
+            temperature: 0.1,
+        },
+        contents: prompt,
+    });
+
+    return response.text ?? '';
+}

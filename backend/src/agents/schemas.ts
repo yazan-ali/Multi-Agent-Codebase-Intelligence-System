@@ -53,6 +53,7 @@ const EngineerOutputSchema = z.object({
     suggestedTests: z.array(z.object({
         file: z.string(),
         functionName: z.string(),
+        targetTestFile: z.string(),
         testCode: z.string(),
     })),
 });

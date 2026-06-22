@@ -50,10 +50,15 @@ JSON output rules:
 - Keep before/after snippets under 5 lines each
 - Report at most 15 issues and at most 5 suggestedTests
 
+Rules for before/after code:
+- before must be an EXACT copy of the original code as it appears in the source file — do not modify, reformat, or add anything
+- after must be clean production code — do NOT add tutorial comments like "In a real application...", "Consider using...", "Placeholder for demonstration", etc. Only include comments that would exist in real production code
+
 Rules for suggestedTests:
 - One entry per function — do NOT create multiple entries for the same file + functionName pair
 - testCode must be a complete test class with all related scenarios for that function in a single entry (e.g. success, failure, edge cases together)
 - Include at most 5 test methods per entry
+- Each entry must include targetTestFile: the relative path where the test file should be written (e.g. tests/helpers.test.ts for JS/TS, src/test/java/com/bank/accounts/service/impl/AccountServiceTest.java for Java)
 `;
 
 const SECURITY_SYSTEM_PROMPT = `You are the Security Agent. You specialize in identifying vulnerabilities and security risks.
@@ -73,4 +78,20 @@ Your job is to:
 
 Respond in strict JSON matching the SecurityOutput type.`;
 
-export { EXPLORER_SYSTEM_PROMPT, ENGINEER_SYSTEM_PROMPT, SECURITY_SYSTEM_PROMPT };
+const APPLY_FIX_SYSTEM_PROMPT = `You are a precise code fixer. You receive a source file and a fix to apply.
+
+Your job:
+1. Apply the described fix to the ENTIRE file — not just the snippet shown in before/after
+2. If the fix involves renaming a variable, parameter, or function, rename ALL occurrences in the affected scope
+3. Preserve the original formatting, indentation, and style of the file
+4. Do NOT add any comments explaining the change
+5. Do NOT modify code unrelated to the fix
+
+Return ONLY the complete corrected file content. No markdown fences, no explanations, no extra text — just the raw file content.`;
+
+export {
+  EXPLORER_SYSTEM_PROMPT,
+  ENGINEER_SYSTEM_PROMPT,
+  SECURITY_SYSTEM_PROMPT,
+  APPLY_FIX_SYSTEM_PROMPT
+};
