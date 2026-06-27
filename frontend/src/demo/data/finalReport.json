@@ -1,0 +1,994 @@
+{
+  "executiveSummary": "## Overview\n\nThis codebase uses **Java, Shell, PowerShell, SQL** with **Spring Boot, Spring Data JPA, Spring Web, Spring Cloud Config, Swagger/OpenAPI**. 1 entry point(s) identified across 68 analyzed source files.\n\n## Architecture\n\nThis project implements a Spring Boot microservice for managing bank accounts. It follows a layered architecture, typical for Spring applications, separating concerns into distinct components. The application exposes RESTful APIs for CRUD operations on customer and account details, integrates with a database using Spring Data JPA, and includes robust error handling and API documentation.\n\n## Code Quality\n\nOverall quality score: **75/100** (readability 70, test coverage 30, duplication 80, patterns 70). 8 issue(s) found (3 High, 3 Medium, 2 Low). 21 of 22 source files lack tests.\n\n## Security\n\nRisk score: **90/100**. 5 vulnerability(ies) (3 Critical, 1 High, 1 Medium). Also flagged: 1 hardcoded secret(s), 7 missing auth guard(s), 1 insecure dependency(ies).\n\nThe Accounts microservice exhibits critical security vulnerabilities primarily related to a complete lack of authentication and authorization on all API endpoints, exposing sensitive data and allowing unauthorized CRUD operations. Additionally, hardcoded credentials and an enabled H2 database console in a 'prod' profile pose severe security misconfigurations. Supply chain risks are present due to unverified Maven wrapper downloads and an ambiguous H2 database version. Implementing Spring Security and proper secrets management is crucial.\n\n## Priority Actions\n\n- **Critical** (security) — `src/main/java/com/bank/accounts/controller/AccountsController.java:35`: A01:2021-Broken Access Control, A07:2021-Identification and Authentication Failures — All REST API endpoints in `AccountsController` are publicly accessible without any authentication or authorization mechanisms. This allows any unauthenticated user to perform CRUD operations on customer and account data, leading to severe data breaches and unauthorized access.\n- **Critical** (security) — `src/main/resources/application.yml:13`: A02:2021-Cryptographic Failures, A05:2021-Security Misconfiguration — The H2 database 'sa' user has an empty password hardcoded in `application.yml`. Although H2 is used as an in-memory database, the `spring.profiles.active: \"prod\"` setting indicates this configuration might be used in a production-like environment, making it a critical security risk.\n- **Critical** (security) — `src/main/resources/application.yml:17`: A05:2021-Security Misconfiguration — The H2 database console is enabled in `application.yml` and the active profile is set to `prod`. Exposing a database console, especially with weak or no credentials, is a severe security misconfiguration that allows direct access to the database.\n- **High** (security) — `mvnw:296`: A08:2021-Software and Data Integrity Failures — The `mvnw` script downloads the Maven distribution, but the `maven-wrapper.properties` file does not specify a `distributionSha256Sum`. This means the integrity of the downloaded Maven distribution is not verified, making the build process vulnerable to supply chain attacks if the download URL or the distribution itself is compromised.\n- **High** (engineer) — `src/main/java/com/bank/accounts/controller/AccountsController.java:61`: Bug/Typo — The validation message for mobile number pattern contains a typo, stating '100 digits' instead of '10 digits'. This is misleading to the user.",
+  "topPriorityIssues": [
+    {
+      "source": "security",
+      "severity": "Critical",
+      "file": "src/main/java/com/bank/accounts/controller/AccountsController.java",
+      "line": 35,
+      "description": "A01:2021-Broken Access Control, A07:2021-Identification and Authentication Failures — All REST API endpoints in `AccountsController` are publicly accessible without any authentication or authorization mechanisms. This allows any unauthenticated user to perform CRUD operations on customer and account data, leading to severe data breaches and unauthorized access."
+    },
+    {
+      "source": "security",
+      "severity": "Critical",
+      "file": "src/main/resources/application.yml",
+      "line": 13,
+      "description": "A02:2021-Cryptographic Failures, A05:2021-Security Misconfiguration — The H2 database 'sa' user has an empty password hardcoded in `application.yml`. Although H2 is used as an in-memory database, the `spring.profiles.active: \"prod\"` setting indicates this configuration might be used in a production-like environment, making it a critical security risk."
+    },
+    {
+      "source": "security",
+      "severity": "Critical",
+      "file": "src/main/resources/application.yml",
+      "line": 17,
+      "description": "A05:2021-Security Misconfiguration — The H2 database console is enabled in `application.yml` and the active profile is set to `prod`. Exposing a database console, especially with weak or no credentials, is a severe security misconfiguration that allows direct access to the database."
+    },
+    {
+      "source": "security",
+      "severity": "High",
+      "file": "mvnw",
+      "line": 296,
+      "description": "A08:2021-Software and Data Integrity Failures — The `mvnw` script downloads the Maven distribution, but the `maven-wrapper.properties` file does not specify a `distributionSha256Sum`. This means the integrity of the downloaded Maven distribution is not verified, making the build process vulnerable to supply chain attacks if the download URL or the distribution itself is compromised."
+    },
+    {
+      "source": "engineer",
+      "severity": "High",
+      "file": "src/main/java/com/bank/accounts/controller/AccountsController.java",
+      "line": 61,
+      "description": "Bug/Typo — The validation message for mobile number pattern contains a typo, stating '100 digits' instead of '10 digits'. This is misleading to the user."
+    },
+    {
+      "source": "engineer",
+      "severity": "High",
+      "file": "src/main/java/com/bank/accounts/controller/AccountsController.java",
+      "line": 128,
+      "description": "Bug/Typo — The validation message for mobile number pattern contains a typo, stating '100 digits' instead of '10 digits'. This is misleading to the user."
+    },
+    {
+      "source": "engineer",
+      "severity": "High",
+      "file": "src/main/java/com/bank/accounts/exception/ObjectError.java",
+      "line": 1,
+      "description": "Code Quality/Dead Code — This file defines an empty class `ObjectError` which appears to be unused and conflicts with `org.springframework.validation.ObjectError`. It should be removed to avoid confusion and clean up the codebase."
+    },
+    {
+      "source": "security",
+      "severity": "Medium",
+      "file": "src/main/java/com/bank/accounts/controller/AccountsController.java",
+      "line": 125,
+      "description": "A04:2021-Insecure Design, A01:2021-Broken Access Control — Endpoints like `/build-info`, `/java-version`, and `/contact-info` expose potentially sensitive application details (build version, Java environment, contact information) without any authentication. This information could be useful to attackers for reconnaissance."
+    },
+    {
+      "source": "engineer",
+      "severity": "Medium",
+      "file": "src/main/java/com/bank/accounts/controller/AccountsController.java",
+      "line": 35,
+      "description": "Code Quality — Mixing field injection (@Autowired) with constructor injection for dependencies. It's best practice to use constructor injection for all required dependencies to ensure immutability and testability."
+    },
+    {
+      "source": "engineer",
+      "severity": "Medium",
+      "file": "src/main/java/com/bank/accounts/service/impl/AccountService.java",
+      "line": 60,
+      "description": "Code Quality — The `createNewAccount` method generates a random account number using `new Random().nextInt()`. In a production banking system, account numbers should be generated by a more robust, collision-resistant, and potentially sequential mechanism (e.g., a dedicated sequence generator, UUIDs, or a central service) to ensure uniqueness and adherence to business rules."
+    }
+  ],
+  "agentStatus": {
+    "explorer": "done",
+    "engineer": "done",
+    "security": "done"
+  },
+  "explorerReport": {
+    "stack": {
+      "languages": [
+        "Java",
+        "Shell",
+        "PowerShell",
+        "SQL"
+      ],
+      "frameworks": [
+        "Spring Boot",
+        "Spring Data JPA",
+        "Spring Web",
+        "Spring Cloud Config",
+        "Swagger/OpenAPI"
+      ],
+      "libraries": [
+        "Lombok",
+        "H2 Database",
+        "Springdoc OpenAPI"
+      ],
+      "testFrameworks": [
+        "JUnit 5"
+      ]
+    },
+    "entryPoints": [
+      "src/main/java/com/bank/accounts/AccountsApplication.java"
+    ],
+    "dependencyMap": {
+      "src/main/java/com/bank/accounts/AccountsApplication.java": [
+        "src/main/java/com/bank/accounts/dto/AccountsContactsInfoDto.java"
+      ],
+      "src/main/java/com/bank/accounts/audit/AuditAwareImpl.java": [],
+      "src/main/java/com/bank/accounts/constants/AccountsConstants.java": [],
+      "src/main/java/com/bank/accounts/controller/AccountsController.java": [
+        "src/main/java/com/bank/accounts/constants/AccountsConstants.java",
+        "src/main/java/com/bank/accounts/dto/AccountsContactsInfoDto.java",
+        "src/main/java/com/bank/accounts/dto/CustomerDto.java",
+        "src/main/java/com/bank/accounts/dto/ErrorResponseDto.java",
+        "src/main/java/com/bank/accounts/dto/ResponseDto.java",
+        "src/main/java/com/bank/accounts/service/IAccountService.java"
+      ],
+      "src/main/java/com/bank/accounts/dto/AccountsContactsInfoDto.java": [],
+      "src/main/java/com/bank/accounts/dto/AccountsDto.java": [],
+      "src/main/java/com/bank/accounts/dto/CustomerDto.java": [
+        "src/main/java/com/bank/accounts/dto/AccountsDto.java"
+      ],
+      "src/main/java/com/bank/accounts/dto/ErrorResponseDto.java": [],
+      "src/main/java/com/bank/accounts/dto/ResponseDto.java": [],
+      "src/main/java/com/bank/accounts/entity/Accounts.java": [
+        "src/main/java/com/bank/accounts/entity/BaseEntity.java"
+      ],
+      "src/main/java/com/bank/accounts/entity/BaseEntity.java": [],
+      "src/main/java/com/bank/accounts/entity/Customer.java": [
+        "src/main/java/com/bank/accounts/entity/BaseEntity.java"
+      ],
+      "src/main/java/com/bank/accounts/exception/CustomerAlreadyExistsException.java": [],
+      "src/main/java/com/bank/accounts/exception/GlobalExceptionHandler.java": [
+        "src/main/java/com/bank/accounts/dto/ErrorResponseDto.java",
+        "src/main/java/com/bank/accounts/exception/CustomerAlreadyExistsException.java",
+        "src/main/java/com/bank/accounts/exception/ResourceNotFoundException.java"
+      ],
+      "src/main/java/com/bank/accounts/exception/ObjectError.java": [],
+      "src/main/java/com/bank/accounts/exception/ResourceNotFoundException.java": [],
+      "src/main/java/com/bank/accounts/mapper/AccountsMapper.java": [
+        "src/main/java/com/bank/accounts/dto/AccountsDto.java",
+        "src/main/java/com/bank/accounts/entity/Accounts.java"
+      ],
+      "src/main/java/com/bank/accounts/mapper/CustomerMapper.java": [
+        "src/main/java/com/bank/accounts/dto/CustomerDto.java",
+        "src/main/java/com/bank/accounts/entity/Customer.java"
+      ],
+      "src/main/java/com/bank/accounts/repository/AccountsRepository.java": [
+        "src/main/java/com/bank/accounts/entity/Accounts.java"
+      ],
+      "src/main/java/com/bank/accounts/repository/CustomerRepository.java": [
+        "src/main/java/com/bank/accounts/entity/Customer.java"
+      ],
+      "src/main/java/com/bank/accounts/service/IAccountService.java": [
+        "src/main/java/com/bank/accounts/dto/CustomerDto.java"
+      ],
+      "src/main/java/com/bank/accounts/service/impl/AccountService.java": [
+        "src/main/java/com/bank/accounts/dto/AccountsDto.java",
+        "src/main/java/com/bank/accounts/dto/CustomerDto.java",
+        "src/main/java/com/bank/accounts/entity/Accounts.java",
+        "src/main/java/com/bank/accounts/entity/Customer.java",
+        "src/main/java/com/bank/accounts/exception/CustomerAlreadyExistsException.java",
+        "src/main/java/com/bank/accounts/exception/ResourceNotFoundException.java",
+        "src/main/java/com/bank/accounts/mapper/AccountsMapper.java",
+        "src/main/java/com/bank/accounts/mapper/CustomerMapper.java",
+        "src/main/java/com/bank/accounts/repository/AccountsRepository.java",
+        "src/main/java/com/bank/accounts/repository/CustomerRepository.java",
+        "src/main/java/com/bank/accounts/service/IAccountService.java",
+        "src/main/java/com/bank/accounts/constants/AccountsConstants.java"
+      ],
+      "src/test/java/com/bank/accounts/AccountsApplicationTests.java": []
+    },
+    "architectureLayers": [
+      {
+        "layer": "Application",
+        "files": [
+          "src/main/java/com/bank/accounts/AccountsApplication.java"
+        ]
+      },
+      {
+        "layer": "Controller",
+        "files": [
+          "src/main/java/com/bank/accounts/controller/AccountsController.java"
+        ]
+      },
+      {
+        "layer": "Service",
+        "files": [
+          "src/main/java/com/bank/accounts/service/IAccountService.java",
+          "src/main/java/com/bank/accounts/service/impl/AccountService.java"
+        ]
+      },
+      {
+        "layer": "Repository",
+        "files": [
+          "src/main/java/com/bank/accounts/repository/AccountsRepository.java",
+          "src/main/java/com/bank/accounts/repository/CustomerRepository.java"
+        ]
+      },
+      {
+        "layer": "Entity",
+        "files": [
+          "src/main/java/com/bank/accounts/entity/Accounts.java",
+          "src/main/java/com/bank/accounts/entity/BaseEntity.java",
+          "src/main/java/com/bank/accounts/entity/Customer.java"
+        ]
+      },
+      {
+        "layer": "DTO",
+        "files": [
+          "src/main/java/com/bank/accounts/dto/AccountsContactsInfoDto.java",
+          "src/main/java/com/bank/accounts/dto/AccountsDto.java",
+          "src/main/java/com/bank/accounts/dto/CustomerDto.java",
+          "src/main/java/com/bank/accounts/dto/ErrorResponseDto.java",
+          "src/main/java/com/bank/accounts/dto/ResponseDto.java"
+        ]
+      },
+      {
+        "layer": "Mapper",
+        "files": [
+          "src/main/java/com/bank/accounts/mapper/AccountsMapper.java",
+          "src/main/java/com/bank/accounts/mapper/CustomerMapper.java"
+        ]
+      },
+      {
+        "layer": "Exception Handling",
+        "files": [
+          "src/main/java/com/bank/accounts/exception/CustomerAlreadyExistsException.java",
+          "src/main/java/com/bank/accounts/exception/GlobalExceptionHandler.java",
+          "src/main/java/com/bank/accounts/exception/ObjectError.java",
+          "src/main/java/com/bank/accounts/exception/ResourceNotFoundException.java"
+        ]
+      },
+      {
+        "layer": "Audit",
+        "files": [
+          "src/main/java/com/bank/accounts/audit/AuditAwareImpl.java"
+        ]
+      },
+      {
+        "layer": "Constants",
+        "files": [
+          "src/main/java/com/bank/accounts/constants/AccountsConstants.java"
+        ]
+      },
+      {
+        "layer": "Configuration/Infrastructure",
+        "files": [
+          "pom.xml",
+          "src/main/resources/application.yml",
+          "src/main/resources/schema.sql",
+          "Dockerfile"
+        ]
+      },
+      {
+        "layer": "Build Scripts/Metadata",
+        "files": [
+          ".gitattributes",
+          ".gitignore",
+          ".mvn/wrapper/maven-wrapper.properties",
+          ".vscode/NEWLY_CREATED_BY_SPRING_INITIALIZR",
+          "mvnw",
+          "mvnw.cmd",
+          "HELP.md",
+          "target/accounts-0.0.1-SNAPSHOT.jar",
+          "target/classes/application.yml",
+          "target/classes/com/bank/accounts/AccountsApplication.class",
+          "target/classes/com/bank/accounts/audit/AuditAwareImpl.class",
+          "target/classes/com/bank/accounts/constants/AccountsConstants.class",
+          "target/classes/com/bank/accounts/controller/AccountsController.class",
+          "target/classes/com/bank/accounts/dto/AccountsContactsInfoDto.class",
+          "target/classes/com/bank/accounts/dto/AccountsDto.class",
+          "target/classes/com/bank/accounts/dto/CustomerDto.class",
+          "target/classes/com/bank/accounts/dto/ErrorResponseDto.class",
+          "target/classes/com/bank/accounts/dto/ResponseDto.class",
+          "target/classes/com/bank/accounts/entity/Accounts.class",
+          "target/classes/com/bank/accounts/entity/BaseEntity.class",
+          "target/classes/com/bank/accounts/entity/Customer.class",
+          "target/classes/com/bank/accounts/exception/CustomerAlreadyExistsException.class",
+          "target/classes/com/bank/accounts/exception/GlobalExceptionHandler.class",
+          "target/classes/com/bank/accounts/exception/ObjectError.class",
+          "target/classes/com/bank/accounts/exception/ResourceNotFoundException.class",
+          "target/classes/com/bank/accounts/mapper/AccountsMapper.class",
+          "target/classes/com/bank/accounts/mapper/CustomerMapper.class",
+          "target/classes/com/bank/accounts/repository/AccountsRepository.class",
+          "target/classes/com/bank/accounts/repository/CustomerRepository.class",
+          "target/classes/com/bank/accounts/service/IAccountService.class",
+          "target/classes/com/bank/accounts/service/impl/AccountService.class",
+          "target/classes/schema.sql",
+          "target/maven-archiver/pom.properties",
+          "target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst",
+          "target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst",
+          "target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/createdFiles.lst",
+          "target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst",
+          "target/surefire-reports/2025-10-12T19-43-45_067.dumpstream",
+          "target/surefire-reports/com.bank.accounts.AccountsApplicationTests.txt",
+          "target/surefire-reports/TEST-com.bank.accounts.AccountsApplicationTests.xml",
+          "target/test-classes/com/bank/accounts/AccountsApplicationTests.class"
+        ]
+      },
+      {
+        "layer": "Test",
+        "files": [
+          "src/test/java/com/bank/accounts/AccountsApplicationTests.java"
+        ]
+      }
+    ],
+    "fileComplexity": [
+      {
+        "file": ".gitattributes",
+        "score": 1,
+        "reason": "Configuration file, minimal complexity."
+      },
+      {
+        "file": ".gitignore",
+        "score": 1,
+        "reason": "Configuration file, minimal complexity."
+      },
+      {
+        "file": ".mvn/wrapper/maven-wrapper.properties",
+        "score": 1,
+        "reason": "Configuration file, minimal complexity."
+      },
+      {
+        "file": ".vscode/NEWLY_CREATED_BY_SPRING_INITIALIZR",
+        "score": 1,
+        "reason": "Empty placeholder file, minimal complexity."
+      },
+      {
+        "file": "Dockerfile",
+        "score": 2,
+        "reason": "Simple Docker build instructions."
+      },
+      {
+        "file": "HELP.md",
+        "score": 1,
+        "reason": "Documentation file, minimal complexity."
+      },
+      {
+        "file": "mvnw",
+        "score": 3,
+        "reason": "Shell script for Maven wrapper, moderate logic for download and execution."
+      },
+      {
+        "file": "mvnw.cmd",
+        "score": 3,
+        "reason": "PowerShell script for Maven wrapper, moderate logic for download and execution."
+      },
+      {
+        "file": "pom.xml",
+        "score": 4,
+        "reason": "Maven project configuration, defines dependencies, plugins, and build lifecycle. Moderate complexity due to numerous dependencies and plugins."
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/AccountsApplication.java",
+        "score": 4,
+        "reason": "Main Spring Boot application class, includes configuration annotations (SpringBootApplication, EnableJpaAuditing, EnableConfigurationProperties, OpenAPIDefinition) and entry point logic. Moderate complexity due to framework setup."
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/audit/AuditAwareImpl.java",
+        "score": 2,
+        "reason": "Simple Spring Data JPA AuditorAware implementation."
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/constants/AccountsConstants.java",
+        "score": 1,
+        "reason": "Contains only static final constants, minimal complexity."
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/controller/AccountsController.java",
+        "score": 8,
+        "reason": "Handles multiple REST endpoints (CRUD, info), extensive use of Spring annotations, request validation, and Swagger documentation. High coupling to service layer, DTOs, and constants. High complexity due to diverse responsibilities and annotations."
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/dto/AccountsContactsInfoDto.java",
+        "score": 2,
+        "reason": "Simple record DTO for contact information, configured via @ConfigurationProperties."
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/dto/AccountsDto.java",
+        "score": 2,
+        "reason": "Simple DTO with validation annotations and Lombok annotations."
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/dto/CustomerDto.java",
+        "score": 3,
+        "reason": "DTO for customer and account information, includes nested AccountsDto and validation annotations. Slightly more complex due to nested DTO."
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/dto/ErrorResponseDto.java",
+        "score": 2,
+        "reason": "Simple DTO for error responses, with Lombok and Swagger annotations."
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/dto/ResponseDto.java",
+        "score": 2,
+        "reason": "Simple DTO for standard API responses, with Lombok and Swagger annotations."
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/entity/Accounts.java",
+        "score": 2,
+        "reason": "Simple JPA entity, extends BaseEntity, with Lombok annotations."
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/entity/BaseEntity.java",
+        "score": 3,
+        "reason": "Base entity for auditing, includes JPA and Spring Data annotations for created/updated fields. Moderate complexity due to auditing setup."
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/entity/Customer.java",
+        "score": 2,
+        "reason": "Simple JPA entity, extends BaseEntity, with Lombok annotations."
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/exception/CustomerAlreadyExistsException.java",
+        "score": 2,
+        "reason": "Custom runtime exception with @ResponseStatus annotation."
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/exception/GlobalExceptionHandler.java",
+        "score": 7,
+        "reason": "Centralized exception handler, handles multiple custom exceptions and validation errors. Moderate to high complexity due to handling different exception types and constructing error responses."
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/exception/ObjectError.java",
+        "score": 1,
+        "reason": "Empty class, likely a leftover or unused placeholder."
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/exception/ResourceNotFoundException.java",
+        "score": 2,
+        "reason": "Custom runtime exception with @ResponseStatus annotation and formatted message."
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/mapper/AccountsMapper.java",
+        "score": 3,
+        "reason": "Static utility class for mapping between Accounts entity and DTO. Simple mapping logic."
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/mapper/CustomerMapper.java",
+        "score": 3,
+        "reason": "Static utility class for mapping between Customer entity and DTO. Simple mapping logic."
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/repository/AccountsRepository.java",
+        "score": 3,
+        "reason": "Spring Data JPA repository interface, defines custom query methods and transactional delete. Moderate complexity due to custom methods and annotations."
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/repository/CustomerRepository.java",
+        "score": 3,
+        "reason": "Spring Data JPA repository interface, defines a custom query method. Moderate complexity."
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/service/IAccountService.java",
+        "score": 3,
+        "reason": "Service interface, defines core business operations. Moderate complexity as it dictates the service contract."
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/service/impl/AccountService.java",
+        "score": 9,
+        "reason": "Contains core business logic for account management (CRUD), interacts with multiple repositories, mappers, DTOs, and handles custom exceptions. High complexity due to extensive business logic and dependencies."
+      },
+      {
+        "file": "src/main/resources/application.yml",
+        "score": 2,
+        "reason": "Spring Boot application configuration, defines server port, datasource, JPA settings, and config server import."
+      },
+      {
+        "file": "src/main/resources/schema.sql",
+        "score": 2,
+        "reason": "SQL schema definition for customer and accounts tables."
+      },
+      {
+        "file": "src/test/java/com/bank/accounts/AccountsApplicationTests.java",
+        "score": 2,
+        "reason": "Basic Spring Boot test class, minimal logic."
+      },
+      {
+        "file": "target/accounts-0.0.1-SNAPSHOT.jar",
+        "score": 1,
+        "reason": "Compiled artifact, not source code."
+      },
+      {
+        "file": "target/classes/application.yml",
+        "score": 1,
+        "reason": "Compiled artifact, not source code."
+      },
+      {
+        "file": "target/classes/com/bank/accounts/AccountsApplication.class",
+        "score": 1,
+        "reason": "Compiled artifact, not source code."
+      },
+      {
+        "file": "target/classes/com/bank/accounts/audit/AuditAwareImpl.class",
+        "score": 1,
+        "reason": "Compiled artifact, not source code."
+      },
+      {
+        "file": "target/classes/com/bank/accounts/constants/AccountsConstants.class",
+        "score": 1,
+        "reason": "Compiled artifact, not source code."
+      },
+      {
+        "file": "target/classes/com/bank/accounts/controller/AccountsController.class",
+        "score": 1,
+        "reason": "Compiled artifact, not source code."
+      },
+      {
+        "file": "target/classes/com/bank/accounts/dto/AccountsContactsInfoDto.class",
+        "score": 1,
+        "reason": "Compiled artifact, not source code."
+      },
+      {
+        "file": "target/classes/com/bank/accounts/dto/AccountsDto.class",
+        "score": 1,
+        "reason": "Compiled artifact, not source code."
+      },
+      {
+        "file": "target/classes/com/bank/accounts/dto/CustomerDto.class",
+        "score": 1,
+        "reason": "Compiled artifact, not source code."
+      },
+      {
+        "file": "target/classes/com/bank/accounts/dto/ErrorResponseDto.class",
+        "score": 1,
+        "reason": "Compiled artifact, not source code."
+      },
+      {
+        "file": "target/classes/com/bank/accounts/dto/ResponseDto.class",
+        "score": 1,
+        "reason": "Compiled artifact, not source code."
+      },
+      {
+        "file": "target/classes/com/bank/accounts/entity/Accounts.class",
+        "score": 1,
+        "reason": "Compiled artifact, not source code."
+      },
+      {
+        "file": "target/classes/com/bank/accounts/entity/BaseEntity.class",
+        "score": 1,
+        "reason": "Compiled artifact, not source code."
+      },
+      {
+        "file": "target/classes/com/bank/accounts/entity/Customer.class",
+        "score": 1,
+        "reason": "Compiled artifact, not source code."
+      },
+      {
+        "file": "target/classes/com/bank/accounts/exception/CustomerAlreadyExistsException.class",
+        "score": 1,
+        "reason": "Compiled artifact, not source code."
+      },
+      {
+        "file": "target/classes/com/bank/accounts/exception/GlobalExceptionHandler.class",
+        "score": 1,
+        "reason": "Compiled artifact, not source code."
+      },
+      {
+        "file": "target/classes/com/bank/accounts/exception/ObjectError.class",
+        "score": 1,
+        "reason": "Compiled artifact, not source code."
+      },
+      {
+        "file": "target/classes/com/bank/accounts/exception/ResourceNotFoundException.class",
+        "score": 1,
+        "reason": "Compiled artifact, not source code."
+      },
+      {
+        "file": "target/classes/com/bank/accounts/mapper/AccountsMapper.class",
+        "score": 1,
+        "reason": "Compiled artifact, not source code."
+      },
+      {
+        "file": "target/classes/com/bank/accounts/mapper/CustomerMapper.class",
+        "score": 1,
+        "reason": "Compiled artifact, not source code."
+      },
+      {
+        "file": "target/classes/com/bank/accounts/repository/AccountsRepository.class",
+        "score": 1,
+        "reason": "Compiled artifact, not source code."
+      },
+      {
+        "file": "target/classes/com/bank/accounts/repository/CustomerRepository.class",
+        "score": 1,
+        "reason": "Compiled artifact, not source code."
+      },
+      {
+        "file": "target/classes/com/bank/accounts/service/IAccountService.class",
+        "score": 1,
+        "reason": "Compiled artifact, not source code."
+      },
+      {
+        "file": "target/classes/com/bank/accounts/service/impl/AccountService.class",
+        "score": 1,
+        "reason": "Compiled artifact, not source code."
+      },
+      {
+        "file": "target/classes/schema.sql",
+        "score": 1,
+        "reason": "Compiled artifact, not source code."
+      },
+      {
+        "file": "target/maven-archiver/pom.properties",
+        "score": 1,
+        "reason": "Build metadata, not source code."
+      },
+      {
+        "file": "target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst",
+        "score": 1,
+        "reason": "Build metadata, not source code."
+      },
+      {
+        "file": "target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst",
+        "score": 1,
+        "reason": "Build metadata, not source code."
+      },
+      {
+        "file": "target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/createdFiles.lst",
+        "score": 1,
+        "reason": "Build metadata, not source code."
+      },
+      {
+        "file": "target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst",
+        "score": 1,
+        "reason": "Build metadata, not source code."
+      },
+      {
+        "file": "target/surefire-reports/2025-10-12T19-43-45_067.dumpstream",
+        "score": 1,
+        "reason": "Test report artifact, not source code."
+      },
+      {
+        "file": "target/surefire-reports/com.bank.accounts.AccountsApplicationTests.txt",
+        "score": 1,
+        "reason": "Test report artifact, not source code."
+      },
+      {
+        "file": "target/surefire-reports/TEST-com.bank.accounts.AccountsApplicationTests.xml",
+        "score": 1,
+        "reason": "Test report artifact, not source code."
+      },
+      {
+        "file": "target/test-classes/com/bank/accounts/AccountsApplicationTests.class",
+        "score": 1,
+        "reason": "Compiled artifact, not source code."
+      }
+    ],
+    "architectureSummary": "This project implements a Spring Boot microservice for managing bank accounts. It follows a layered architecture, typical for Spring applications, separating concerns into distinct components. The application exposes RESTful APIs for CRUD operations on customer and account details, integrates with a database using Spring Data JPA, and includes robust error handling and API documentation.\n\n## Layers\n*   **Application Layer**: The entry point and orchestrator of the Spring Boot application (`src/main/java/com/bank/accounts/AccountsApplication.java`).\n*   **Controller Layer**: Handles incoming HTTP requests, performs input validation, and delegates business logic to the service layer (`src/main/java/com/bank/accounts/controller/AccountsController.java`).\n*   **Service Layer**: Contains the core business logic and transaction management. It defines an interface (`src/main/java/com/bank/accounts/service/IAccountService.java`) and an implementation (`src/main/java/com/bank/accounts/service/impl/AccountService.java`).\n*   **Repository Layer**: Manages data persistence operations using Spring Data JPA, interacting with the underlying database (`src/main/java/com/bank/accounts/repository/AccountsRepository.java`, `src/main/java/com/bank/accounts/repository/CustomerRepository.java`).\n*   **Entity Layer**: Defines the domain model objects that map to database tables (`src/main/java/com/bank/accounts/entity/Accounts.java`, `src/main/java/com/bank/accounts/entity/Customer.java`, `src/main/java/com/bank/accounts/entity/BaseEntity.java`).\n*   **DTO Layer**: Data Transfer Objects used for request and response payloads, often including validation annotations (`src/main/java/com/bank/accounts/dto/*.java`).\n*   **Mapper Layer**: Utility classes responsible for converting between DTOs and Entities (`src/main/java/com/bank/accounts/mapper/AccountsMapper.java`, `src/main/java/com/bank/accounts/mapper/CustomerMapper.java`).\n*   **Exception Handling Layer**: Custom exceptions (`src/main/java/com/bank/accounts/exception/CustomerAlreadyExistsException.java`, `src/main/java/com/bank/accounts/exception/ResourceNotFoundException.java`) and a global handler (`src/main/java/com/bank/accounts/exception/GlobalExceptionHandler.java`) for consistent error responses.\n*   **Audit Layer**: Provides auditing capabilities for entities (`src/main/java/com/bank/accounts/audit/AuditAwareImpl.java`).\n*   **Constants Layer**: Holds application-wide constant values (`src/main/java/com/bank/accounts/constants/AccountsConstants.java`).\n\n## Data Flow\nClient requests hit the `AccountsController`, which validates input (using DTOs) and calls the `IAccountService`. The `AccountService` orchestrates business logic, interacting with `AccountsRepository` and `CustomerRepository` for data access. Mappers convert entities to DTOs for responses. Exceptions are caught and processed by `GlobalExceptionHandler` to return standardized error messages.\n\n## Key Observations\n*   The use of Lombok reduces boilerplate code for DTOs and Entities.\n*   Spring Data JPA simplifies database interactions.\n*   Swagger/OpenAPI annotations provide clear API documentation.\n*   Centralized exception handling ensures consistent error responses.\n*   The `application.yml` configures the H2 in-memory database for development/testing and imports configuration from a config server, indicating a microservice pattern for externalized configuration.",
+    "highCouplingFlags": [
+      "src/main/java/com/bank/accounts/controller/AccountsController.java",
+      "src/main/java/com/bank/accounts/service/impl/AccountService.java",
+      "src/main/java/com/bank/accounts/exception/GlobalExceptionHandler.java"
+    ]
+  },
+  "engineerReport": {
+    "overallScore": 75,
+    "categoryScores": {
+      "readability": 70,
+      "testCoverage": 30,
+      "duplication": 80,
+      "patterns": 70
+    },
+    "issues": [
+      {
+        "file": "src/main/java/com/bank/accounts/controller/AccountsController.java",
+        "line": 35,
+        "priority": "Medium",
+        "category": "Code Quality",
+        "description": "Mixing field injection (@Autowired) with constructor injection for dependencies. It's best practice to use constructor injection for all required dependencies to ensure immutability and testability.",
+        "before": "        @Value(\"${build.version}\")\n        private String buildVersion;\n\n        @Autowired\n        private Environment environment;\n\n        @Autowired\n        private AccountsContactsInfoDto accountsContactsInfoDto;",
+        "after": "        @Value(\"${build.version}\")\n        private String buildVersion;\n        private Environment environment;\n        private AccountsContactsInfoDto accountsContactsInfoDto;\n\n        public AccountsController(IAccountService accountService, Environment environment, AccountsContactsInfoDto accountsContactsInfoDto) {\n                this.accountService = accountService;\n                this.environment = environment;\n                this.accountsContactsInfoDto = accountsContactsInfoDto;\n        }"
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/controller/AccountsController.java",
+        "line": 61,
+        "priority": "High",
+        "category": "Bug/Typo",
+        "description": "The validation message for mobile number pattern contains a typo, stating '100 digits' instead of '10 digits'. This is misleading to the user.",
+        "before": "                        @RequestParam @Pattern(regexp = \"(^\\[0-9]{10})\", message = \"Mobile number must be 100 digits\") String mobileNumber) {",
+        "after": "                        @RequestParam @Pattern(regexp = \"(^\\[0-9]{10})\", message = \"Mobile number must be 10 digits\") String mobileNumber) {"
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/controller/AccountsController.java",
+        "line": 128,
+        "priority": "High",
+        "category": "Bug/Typo",
+        "description": "The validation message for mobile number pattern contains a typo, stating '100 digits' instead of '10 digits'. This is misleading to the user.",
+        "before": "                        @RequestParam @Pattern(regexp = \"(^\\[0-9]{10})\", message = \"Mobile number must be 10 digits\") String mobileNumber) {",
+        "after": "                        @RequestParam @Pattern(regexp = \"(^\\[0-9]{10})\", message = \"Mobile number must be 10 digits\") String mobileNumber) {"
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/service/impl/AccountService.java",
+        "line": 60,
+        "priority": "Medium",
+        "category": "Code Quality",
+        "description": "The `createNewAccount` method generates a random account number using `new Random().nextInt()`. In a production banking system, account numbers should be generated by a more robust, collision-resistant, and potentially sequential mechanism (e.g., a dedicated sequence generator, UUIDs, or a central service) to ensure uniqueness and adherence to business rules.",
+        "before": "        newAccount.setCustomerId(customer.getCustomerId());\n        long randomAccNumber = 1000000000L + new Random().nextInt(900000000);\n        newAccount.setAccountNumber(randomAccNumber);\n        newAccount.setAccountType(AccountsConstants.SAVINGS);\n        newAccount.setBranchAddress(AccountsConstants.ADDRESS);",
+        "after": "        newAccount.setCustomerId(customer.getCustomerId());\n        // In a real system, use a dedicated sequence generator or a more robust ID generation strategy.\n        long randomAccNumber = 1000000000L + new Random().nextInt(900000000);\n        newAccount.setAccountNumber(randomAccNumber);\n        newAccount.setAccountType(AccountsConstants.SAVINGS);\n        newAccount.setBranchAddress(AccountsConstants.ADDRESS);"
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/service/impl/AccountService.java",
+        "line": 70,
+        "priority": "Medium",
+        "category": "Error Handling",
+        "description": "The `updateAccount` method checks if `accountsDto` is null, but if it is, it simply returns `false` without throwing an exception or providing a more specific error message. This can lead to unclear API responses for invalid update requests.",
+        "before": "        boolean isUpdated = false;\n        AccountsDto accountsDto = customerDto.getAccountsDto();\n        if (accountsDto != null) {",
+        "after": "        boolean isUpdated = false;\n        AccountsDto accountsDto = customerDto.getAccountsDto();\n        if (accountsDto == null || accountsDto.getAccountNumber() == null) {\n            throw new IllegalArgumentException(\"Account details or account number cannot be null for update operation.\");\n        }\n        {"
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/constants/AccountsConstants.java",
+        "line": 5,
+        "priority": "Low",
+        "category": "Code Quality",
+        "description": "Constants class should be marked as final to prevent extension, reinforcing its role as a utility class that cannot be subclassed.",
+        "before": "public class AccountsConstants {",
+        "after": "public final class AccountsConstants {"
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/exception/ObjectError.java",
+        "line": 1,
+        "priority": "High",
+        "category": "Code Quality/Dead Code",
+        "description": "This file defines an empty class `ObjectError` which appears to be unused and conflicts with `org.springframework.validation.ObjectError`. It should be removed to avoid confusion and clean up the codebase.",
+        "before": "package com.bank.accounts.exception;\n\npublic class ObjectError {\n\n}",
+        "after": "// File removed as it was an empty and unused class, conflicting with org.springframework.validation.ObjectError."
+      },
+      {
+        "file": "pom.xml",
+        "line": 18,
+        "priority": "Low",
+        "category": "Readability/Configuration",
+        "description": "The `pom.xml` contains empty `<url/>`, `<licenses><license/></licenses>`, `<developers><developer/></developers>`, and `<scm>` tags. While `HELP.md` explains these are overrides to prevent inheritance, they add visual clutter. If no specific values are intended, these sections could be removed or commented out for clarity.",
+        "before": "    <url/>\n    <licenses>\n        <license/>\n    </licenses>\n    <developers>\n        <developer/>\n    </developers>\n    <scm>\n        <connection/>\n        <developerConnection/>\n        <tag/>\n        <url/>\n    </scm>",
+        "after": "    <!-- Removed empty URL, Licenses, Developers, and SCM tags as per HELP.md explanation for preventing inheritance. -->"
+      }
+    ],
+    "testCoverageMap": [
+      {
+        "file": "src/main/java/com/bank/accounts/AccountsApplication.java",
+        "hasTests": true,
+        "testFile": "src/test/java/com/bank/accounts/AccountsApplicationTests.java"
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/audit/AuditAwareImpl.java",
+        "hasTests": false,
+        "testFile": null
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/constants/AccountsConstants.java",
+        "hasTests": false,
+        "testFile": null
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/controller/AccountsController.java",
+        "hasTests": false,
+        "testFile": null
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/dto/AccountsContactsInfoDto.java",
+        "hasTests": false,
+        "testFile": null
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/dto/AccountsDto.java",
+        "hasTests": false,
+        "testFile": null
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/dto/CustomerDto.java",
+        "hasTests": false,
+        "testFile": null
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/dto/ErrorResponseDto.java",
+        "hasTests": false,
+        "testFile": null
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/dto/ResponseDto.java",
+        "hasTests": false,
+        "testFile": null
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/entity/Accounts.java",
+        "hasTests": false,
+        "testFile": null
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/entity/BaseEntity.java",
+        "hasTests": false,
+        "testFile": null
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/entity/Customer.java",
+        "hasTests": false,
+        "testFile": null
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/exception/CustomerAlreadyExistsException.java",
+        "hasTests": false,
+        "testFile": null
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/exception/GlobalExceptionHandler.java",
+        "hasTests": false,
+        "testFile": null
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/exception/ObjectError.java",
+        "hasTests": false,
+        "testFile": null
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/exception/ResourceNotFoundException.java",
+        "hasTests": false,
+        "testFile": null
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/mapper/AccountsMapper.java",
+        "hasTests": false,
+        "testFile": null
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/mapper/CustomerMapper.java",
+        "hasTests": false,
+        "testFile": null
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/repository/AccountsRepository.java",
+        "hasTests": false,
+        "testFile": null
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/repository/CustomerRepository.java",
+        "hasTests": false,
+        "testFile": null
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/service/IAccountService.java",
+        "hasTests": false,
+        "testFile": null
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/service/impl/AccountService.java",
+        "hasTests": false,
+        "testFile": null
+      }
+    ],
+    "suggestedTests": [
+      {
+        "file": "src/main/java/com/bank/accounts/service/impl/AccountService.java",
+        "functionName": "createAccount",
+        "targetTestFile": "src/test/java/com/bank/accounts/service/impl/AccountServiceTest.java",
+        "testCode": "package com.bank.accounts.service.impl;\n\nimport com.bank.accounts.constants.AccountsConstants;\nimport com.bank.accounts.dto.AccountsDto;\nimport com.bank.accounts.dto.CustomerDto;\nimport com.bank.accounts.entity.Accounts;\nimport com.bank.accounts.entity.Customer;\nimport com.bank.accounts.exception.CustomerAlreadyExistsException;\nimport com.bank.accounts.mapper.AccountsMapper;\nimport com.bank.accounts.mapper.CustomerMapper;\nimport com.bank.accounts.repository.AccountsRepository;\nimport com.bank.accounts.repository.CustomerRepository;\nimport org.junit.jupiter.api.BeforeEach;\nimport org.junit.jupiter.api.DisplayName;\nimport org.junit.jupiter.api.Test;\nimport org.junit.jupiter.api.extension.ExtendWith;\nimport org.mockito.InjectMocks;\nimport org.mockito.Mock;\nimport org.mockito.MockedStatic;\nimport org.mockito.Mockito;\nimport org.mockito.junit.jupiter.MockitoExtension;\n\nimport java.util.Optional;\n\nimport static org.junit.jupiter.api.Assertions.*;\nimport static org.mockito.ArgumentMatchers.any;\nimport static org.mockito.Mockito.*;\n\n@ExtendWith(MockitoExtension.class)\nclass AccountServiceTest {\n\n    @Mock\n    private AccountsRepository accountsRepository;\n\n    @Mock\n    private CustomerRepository customerRepository;\n\n    @InjectMocks\n    private AccountService accountService;\n\n    private CustomerDto customerDto;\n    private Customer customer;\n    private Accounts accounts;\n\n    @BeforeEach\n    void setUp() {\n        customerDto = new CustomerDto();\n        customerDto.setName(\"Test Name\");\n        customerDto.setEmail(\"test@example.com\");\n        customerDto.setMobileNumber(\"1234567890\");\n\n        customer = new Customer();\n        customer.setCustomerId(1L);\n        customer.setName(\"Test Name\");\n        customer.setEmail(\"test@example.com\");\n        customer.setMobileNumber(\"1234567890\");\n\n        accounts = new Accounts();\n        accounts.setCustomerId(1L);\n        accounts.setAccountNumber(1234567890L);\n        accounts.setAccountType(AccountsConstants.SAVINGS);\n        accounts.setBranchAddress(AccountsConstants.ADDRESS);\n    }\n\n    @Test\n    @DisplayName(\"Should create a new account successfully\")\n    void createAccount_Success() {\n        when(customerRepository.findByMobileNumber(customerDto.getMobileNumber())).thenReturn(Optional.empty());\n        when(customerRepository.save(any(Customer.class))).thenReturn(customer);\n        when(accountsRepository.save(any(Accounts.class))).thenReturn(accounts);\n\n        try (MockedStatic<CustomerMapper> customerMapperMock = Mockito.mockStatic(CustomerMapper.class)) {\n            customerMapperMock.when(() -> CustomerMapper.mapToCustomer(any(CustomerDto.class), any(Customer.class)))\n                    .thenReturn(customer);\n\n            accountService.createAccount(customerDto);\n\n            verify(customerRepository, times(1)).findByMobileNumber(customerDto.getMobileNumber());\n            verify(customerRepository, times(1)).save(any(Customer.class));\n            verify(accountsRepository, times(1)).save(any(Accounts.class));\n        }\n    }\n\n    @Test\n    @DisplayName(\"Should throw CustomerAlreadyExistsException when customer already exists\")\n    void createAccount_CustomerAlreadyExists() {\n        when(customerRepository.findByMobileNumber(customerDto.getMobileNumber())).thenReturn(Optional.of(customer));\n\n        assertThrows(CustomerAlreadyExistsException.class, () -> accountService.createAccount(customerDto));\n\n        verify(customerRepository, times(1)).findByMobileNumber(customerDto.getMobileNumber());\n        verify(customerRepository, never()).save(any(Customer.class));\n        verify(accountsRepository, never()).save(any(Accounts.class));\n    }\n\n    @Test\n    @DisplayName(\"Should handle null CustomerDto gracefully\")\n    void createAccount_NullCustomerDto() {\n        assertThrows(IllegalArgumentException.class, () -> accountService.createAccount(null));\n        verify(customerRepository, never()).findByMobileNumber(anyString());\n        verify(customerRepository, never()).save(any(Customer.class));\n        verify(accountsRepository, never()).save(any(Accounts.class));\n    }\n}"
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/service/impl/AccountService.java",
+        "functionName": "getAccount",
+        "targetTestFile": "src/test/java/com/bank/accounts/service/impl/AccountServiceTest.java",
+        "testCode": "package com.bank.accounts.service.impl;\n\nimport com.bank.accounts.constants.AccountsConstants;\nimport com.bank.accounts.dto.AccountsDto;\nimport com.bank.accounts.dto.CustomerDto;\nimport com.bank.accounts.entity.Accounts;\nimport com.bank.accounts.entity.Customer;\nimport com.bank.accounts.exception.ResourceNotFoundException;\nimport com.bank.accounts.mapper.AccountsMapper;\nimport com.bank.accounts.mapper.CustomerMapper;\nimport com.bank.accounts.repository.AccountsRepository;\nimport com.bank.accounts.repository.CustomerRepository;\nimport org.junit.jupiter.api.BeforeEach;\nimport org.junit.jupiter.api.DisplayName;\nimport org.junit.jupiter.api.Test;\nimport org.junit.jupiter.api.extension.ExtendWith;\nimport org.mockito.InjectMocks;\nimport org.mockito.Mock;\nimport org.mockito.MockedStatic;\nimport org.mockito.Mockito;\nimport org.mockito.junit.jupiter.MockitoExtension;\n\nimport java.util.Optional;\n\nimport static org.junit.jupiter.api.Assertions.*;\nimport static org.mockito.ArgumentMatchers.any;\nimport static org.mockito.Mockito.*;\n\n@ExtendWith(MockitoExtension.class)\nclass AccountServiceTest {\n\n    @Mock\n    private AccountsRepository accountsRepository;\n\n    @Mock\n    private CustomerRepository customerRepository;\n\n    @InjectMocks\n    private AccountService accountService;\n\n    private CustomerDto customerDto;\n    private Customer customer;\n    private Accounts accounts;\n\n    @BeforeEach\n    void setUp() {\n        customerDto = new CustomerDto();\n        customerDto.setName(\"Test Name\");\n        customerDto.setEmail(\"test@example.com\");\n        customerDto.setMobileNumber(\"1234567890\");\n\n        customer = new Customer();\n        customer.setCustomerId(1L);\n        customer.setName(\"Test Name\");\n        customer.setEmail(\"test@example.com\");\n        customer.setMobileNumber(\"1234567890\");\n\n        accounts = new Accounts();\n        accounts.setCustomerId(1L);\n        accounts.setAccountNumber(1234567890L);\n        accounts.setAccountType(AccountsConstants.SAVINGS);\n        accounts.setBranchAddress(AccountsConstants.ADDRESS);\n    }\n\n    @Test\n    @DisplayName(\"Should fetch account details successfully\")\n    void getAccount_Success() {\n        when(customerRepository.findByMobileNumber(anyString())).thenReturn(Optional.of(customer));\n        when(accountsRepository.findByCustomerId(anyLong())).thenReturn(Optional.of(accounts));\n\n        try (MockedStatic<CustomerMapper> customerMapperMock = Mockito.mockStatic(CustomerMapper.class);\n             MockedStatic<AccountsMapper> accountsMapperMock = Mockito.mockStatic(AccountsMapper.class)) {\n\n            customerMapperMock.when(() -> CustomerMapper.mapToCustomerDto(any(Customer.class), any(CustomerDto.class)))\n                    .thenReturn(customerDto);\n            accountsMapperMock.when(() -> AccountsMapper.mapToAccountsDto(any(Accounts.class), any(AccountsDto.class)))\n                    .thenReturn(new AccountsDto());\n\n            CustomerDto result = accountService.getAccount(\"1234567890\");\n\n            assertNotNull(result);\n            assertEquals(\"Test Name\", result.getName());\n            verify(customerRepository, times(1)).findByMobileNumber(anyString());\n            verify(accountsRepository, times(1)).findByCustomerId(anyLong());\n        }\n    }\n\n    @Test\n    @DisplayName(\"Should throw ResourceNotFoundException when customer not found\")\n    void getAccount_CustomerNotFound() {\n        when(customerRepository.findByMobileNumber(anyString())).thenReturn(Optional.empty());\n\n        assertThrows(ResourceNotFoundException.class, () -> accountService.getAccount(\"1234567890\"));\n\n        verify(customerRepository, times(1)).findByMobileNumber(anyString());\n        verify(accountsRepository, never()).findByCustomerId(anyLong());\n    }\n\n    @Test\n    @DisplayName(\"Should throw ResourceNotFoundException when account not found for customer\")\n    void getAccount_AccountNotFound() {\n        when(customerRepository.findByMobileNumber(anyString())).thenReturn(Optional.of(customer));\n        when(accountsRepository.findByCustomerId(anyLong())).thenReturn(Optional.empty());\n\n        assertThrows(ResourceNotFoundException.class, () -> accountService.getAccount(\"1234567890\"));\n\n        verify(customerRepository, times(1)).findByMobileNumber(anyString());\n        verify(accountsRepository, times(1)).findByCustomerId(anyLong());\n    }\n}"
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/controller/AccountsController.java",
+        "functionName": "createAccount",
+        "targetTestFile": "src/test/java/com/bank/accounts/controller/AccountsControllerTest.java",
+        "testCode": "package com.bank.accounts.controller;\n\nimport com.bank.accounts.constants.AccountsConstants;\nimport com.bank.accounts.dto.CustomerDto;\nimport com.bank.accounts.dto.ResponseDto;\nimport com.bank.accounts.service.IAccountService;\nimport org.junit.jupiter.api.BeforeEach;\nimport org.junit.jupiter.api.DisplayName;\nimport org.junit.jupiter.api.Test;\nimport org.junit.jupiter.api.extension.ExtendWith;\nimport org.mockito.InjectMocks;\nimport org.mockito.Mock;\nimport org.mockito.junit.jupiter.MockitoExtension;\nimport org.springframework.http.HttpStatus;\nimport org.springframework.http.ResponseEntity;\n\nimport static org.junit.jupiter.api.Assertions.assertEquals;\nimport static org.junit.jupiter.api.Assertions.assertNotNull;\nimport static org.mockito.ArgumentMatchers.any;\nimport static org.mockito.Mockito.*;\n\n@ExtendWith(MockitoExtension.class)\nclass AccountsControllerTest {\n\n    @Mock\n    private IAccountService accountService;\n\n    @InjectMocks\n    private AccountsController accountsController;\n\n    private CustomerDto customerDto;\n\n    @BeforeEach\n    void setUp() {\n        customerDto = new CustomerDto();\n        customerDto.setName(\"Test Name\");\n        customerDto.setEmail(\"test@example.com\");\n        customerDto.setMobileNumber(\"1234567890\");\n    }\n\n    @Test\n    @DisplayName(\"Should create account successfully and return 201 CREATED\")\n    void createAccount_Success() {\n        doNothing().when(accountService).createAccount(any(CustomerDto.class));\n\n        ResponseEntity<ResponseDto> response = accountsController.createAccount(customerDto);\n\n        assertNotNull(response);\n        assertEquals(HttpStatus.CREATED, response.getStatusCode());\n        assertEquals(AccountsConstants.STATUS_201, response.getBody().getStatusCode());\n        assertEquals(AccountsConstants.MESSAGE_201, response.getBody().getStatusMsg());\n        verify(accountService, times(1)).createAccount(any(CustomerDto.class));\n    }\n\n    @Test\n    @DisplayName(\"Should handle service exception during account creation\")\n    void createAccount_ServiceException() {\n        doThrow(new RuntimeException(\"Service error\")).when(accountService).createAccount(any(CustomerDto.class));\n\n        // The GlobalExceptionHandler will catch this, so we test that the service method was called.\n        // For a full integration test, we'd use MockMvc to verify the error response.\n        try {\n            accountsController.createAccount(customerDto);\n        } catch (RuntimeException e) {\n            assertEquals(\"Service error\", e.getMessage());\n        }\n\n        verify(accountService, times(1)).createAccount(any(CustomerDto.class));\n    }\n}"
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/mapper/AccountsMapper.java",
+        "functionName": "mapToAccountsDto",
+        "targetTestFile": "src/test/java/com/bank/accounts/mapper/AccountsMapperTest.java",
+        "testCode": "package com.bank.accounts.mapper;\n\nimport com.bank.accounts.dto.AccountsDto;\nimport com.bank.accounts.entity.Accounts;\nimport org.junit.jupiter.api.DisplayName;\nimport org.junit.jupiter.api.Test;\n\nimport static org.junit.jupiter.api.Assertions.assertEquals;\nimport static org.junit.jupiter.api.Assertions.assertNotNull;\n\nclass AccountsMapperTest {\n\n    @Test\n    @DisplayName(\"Should map Accounts entity to AccountsDto\")\n    void mapToAccountsDto_Success() {\n        Accounts accounts = new Accounts(1L, 1234567890L, \"Savings\", \"123 Main St\");\n        AccountsDto accountsDto = new AccountsDto();\n\n        AccountsDto result = AccountsMapper.mapToAccountsDto(accounts, accountsDto);\n\n        assertNotNull(result);\n        assertEquals(accounts.getAccountNumber(), result.getAccountNumber());\n        assertEquals(accounts.getAccountType(), result.getAccountType());\n        assertEquals(accounts.getBranchAddress(), result.getBranchAddress());\n    }\n\n    @Test\n    @DisplayName(\"Should handle null AccountsDto when mapping from entity\")\n    void mapToAccountsDto_NullDto() {\n        Accounts accounts = new Accounts(1L, 1234567890L, \"Savings\", \"123 Main St\");\n        AccountsDto result = AccountsMapper.mapToAccountsDto(accounts, new AccountsDto());\n        assertNotNull(result);\n    }\n\n    @Test\n    @DisplayName(\"Should handle null Accounts entity when mapping to DTO\")\n    void mapToAccountsDto_NullEntity() {\n        AccountsDto accountsDto = new AccountsDto();\n        AccountsDto result = AccountsMapper.mapToAccountsDto(null, accountsDto);\n        // Depending on desired behavior, this might throw NPE or return null/empty DTO\n        // Current implementation would throw NPE if accounts is null and its getters are called.\n        // A robust mapper would handle null inputs.\n        // For now, assuming non-null entity is passed.\n    }\n}"
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/mapper/CustomerMapper.java",
+        "functionName": "mapToCustomerDto",
+        "targetTestFile": "src/test/java/com/bank/accounts/mapper/CustomerMapperTest.java",
+        "testCode": "package com.bank.accounts.mapper;\n\nimport com.bank.accounts.dto.CustomerDto;\nimport com.bank.accounts.entity.Customer;\nimport org.junit.jupiter.api.DisplayName;\nimport org.junit.jupiter.api.Test;\n\nimport static org.junit.jupiter.api.Assertions.assertEquals;\nimport static org.junit.jupiter.api.Assertions.assertNotNull;\n\nclass CustomerMapperTest {\n\n    @Test\n    @DisplayName(\"Should map Customer entity to CustomerDto\")\n    void mapToCustomerDto_Success() {\n        Customer customer = new Customer(1L, \"John Doe\", \"john.doe@example.com\", \"1234567890\");\n        CustomerDto customerDto = new CustomerDto();\n\n        CustomerDto result = CustomerMapper.mapToCustomerDto(customer, customerDto);\n\n        assertNotNull(result);\n        assertEquals(customer.getName(), result.getName());\n        assertEquals(customer.getEmail(), result.getEmail());\n        assertEquals(customer.getMobileNumber(), result.getMobileNumber());\n    }\n\n    @Test\n    @DisplayName(\"Should handle null CustomerDto when mapping from entity\")\n    void mapToCustomerDto_NullDto() {\n        Customer customer = new Customer(1L, \"John Doe\", \"john.doe@example.com\", \"1234567890\");\n        CustomerDto result = CustomerMapper.mapToCustomerDto(customer, new CustomerDto());\n        assertNotNull(result);\n    }\n\n    @Test\n    @DisplayName(\"Should handle null Customer entity when mapping to DTO\")\n    void mapToCustomerDto_NullEntity() {\n        CustomerDto customerDto = new CustomerDto();\n        CustomerDto result = CustomerMapper.mapToCustomerDto(null, customerDto);\n        // Depending on desired behavior, this might throw NPE or return null/empty DTO\n        // Current implementation would throw NPE if customer is null and its getters are called.\n        // A robust mapper would handle null inputs.\n        // For now, assuming non-null entity is passed.\n    }\n}"
+      }
+    ]
+  },
+  "securityReport": {
+    "riskScore": 90,
+    "summary": "The Accounts microservice exhibits critical security vulnerabilities primarily related to a complete lack of authentication and authorization on all API endpoints, exposing sensitive data and allowing unauthorized CRUD operations. Additionally, hardcoded credentials and an enabled H2 database console in a 'prod' profile pose severe security misconfigurations. Supply chain risks are present due to unverified Maven wrapper downloads and an ambiguous H2 database version. Implementing Spring Security and proper secrets management is crucial.",
+    "vulnerabilities": [
+      {
+        "file": "src/main/java/com/bank/accounts/controller/AccountsController.java",
+        "line": 35,
+        "severity": "Critical",
+        "owaspCategory": "A01:2021-Broken Access Control, A07:2021-Identification and Authentication Failures",
+        "description": "All REST API endpoints in `AccountsController` are publicly accessible without any authentication or authorization mechanisms. This allows any unauthenticated user to perform CRUD operations on customer and account data, leading to severe data breaches and unauthorized access.",
+        "fix": "Implement a robust authentication and authorization framework (e.g., Spring Security) to protect all sensitive endpoints. Add appropriate annotations (e.g., @PreAuthorize, @Secured) or configuration to restrict access based on user roles or authentication status.",
+        "before": "@RestController\n@RequestMapping(path = \"/api\", produces = { MediaType.APPLICATION_JSON_VALUE })\n@Validated\n@Tag(name = \"CRUD REST APIs for Accounts for Bank\", description = \"CRUD REST APIs for Bank to CREATE, UPDATE, FETCH AND DELETE account details\")\npublic class AccountsController {\n        private final IAccountService accountService;",
+        "after": "import org.springframework.security.access.prepost.PreAuthorize; // Assuming Spring Security\n// ... other imports\n\n@RestController\n@RequestMapping(path = \"/api\", produces = { MediaType.APPLICATION_JSON_VALUE })\n@Validated\n@Tag(name = \"CRUD REST APIs for Accounts for Bank\", description = \"CRUD REST APIs for Bank to CREATE, UPDATE, FETCH AND DELETE account details\")\n@PreAuthorize(\"isAuthenticated()\") // Example: require authentication for all endpoints in this controller\npublic class AccountsController {\n        private final IAccountService accountService;"
+      },
+      {
+        "file": "src/main/resources/application.yml",
+        "line": 13,
+        "severity": "Critical",
+        "owaspCategory": "A02:2021-Cryptographic Failures, A05:2021-Security Misconfiguration",
+        "description": "The H2 database 'sa' user has an empty password hardcoded in `application.yml`. Although H2 is used as an in-memory database, the `spring.profiles.active: \"prod\"` setting indicates this configuration might be used in a production-like environment, making it a critical security risk.",
+        "fix": "Remove hardcoded credentials. For production, use strong, unique passwords managed by a secrets management solution (e.g., Spring Cloud Config Server, HashiCorp Vault, Kubernetes Secrets). For development, use a separate profile with less strict security.",
+        "before": "  datasource:\n    url: jdbc:h2:mem:testdb\n    driverClassName: org.h2.Driver\n    username: sa\n    password: \"\"",
+        "after": "  datasource:\n    url: jdbc:h2:mem:testdb\n    driverClassName: org.h2.Driver\n    username: sa\n    password: \"{cipher}AQBf6g/...\" # Example: encrypted password via Spring Cloud Config"
+      },
+      {
+        "file": "src/main/resources/application.yml",
+        "line": 17,
+        "severity": "Critical",
+        "owaspCategory": "A05:2021-Security Misconfiguration",
+        "description": "The H2 database console is enabled in `application.yml` and the active profile is set to `prod`. Exposing a database console, especially with weak or no credentials, is a severe security misconfiguration that allows direct access to the database.",
+        "fix": "Disable the H2 console in production profiles. If a database console is needed for debugging, it should only be enabled in secure development environments and protected by strong authentication and network restrictions.",
+        "before": "  h2:\n    console:\n      enabled: true",
+        "after": "  h2:\n    console:\n      enabled: false"
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/controller/AccountsController.java",
+        "line": 125,
+        "severity": "Medium",
+        "owaspCategory": "A04:2021-Insecure Design, A01:2021-Broken Access Control",
+        "description": "Endpoints like `/build-info`, `/java-version`, and `/contact-info` expose potentially sensitive application details (build version, Java environment, contact information) without any authentication. This information could be useful to attackers for reconnaissance.",
+        "fix": "Protect these information endpoints with appropriate authentication and authorization. Only authorized users should be able to access such details.",
+        "before": "        @GetMapping(\"/build-info\")\n        public ResponseEntity<String> getBuildVersion() {\n                return ResponseEntity.status(HttpStatus.OK).body(buildVersion);\n        }",
+        "after": "        @Operation(summary = \"Get Build Version\", description = \"REST API to fetch the build version\")\n        @ApiResponses({\n                        @ApiResponse(responseCode = \"200\", description = \"HTTP Status OK\"),\n                        @ApiResponse(responseCode = \"500\", description = \"HTTP Status Internal Server Error\", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))\n        })\n        @GetMapping(\"/build-info\")\n        @PreAuthorize(\"hasRole('ADMIN')\") // Example: restrict to ADMIN role\n        public ResponseEntity<String> getBuildVersion() {\n                return ResponseEntity.status(HttpStatus.OK).body(buildVersion);\n        }"
+      },
+      {
+        "file": "mvnw",
+        "line": 296,
+        "severity": "High",
+        "owaspCategory": "A08:2021-Software and Data Integrity Failures",
+        "description": "The `mvnw` script downloads the Maven distribution, but the `maven-wrapper.properties` file does not specify a `distributionSha256Sum`. This means the integrity of the downloaded Maven distribution is not verified, making the build process vulnerable to supply chain attacks if the download URL or the distribution itself is compromised.",
+        "fix": "Always include the `distributionSha256Sum` in `maven-wrapper.properties` to ensure the integrity of the downloaded Maven distribution. The SHA-256 sum should be obtained from a trusted source.",
+        "before": "wrapperVersion=3.3.4\ndistributionType=only-script\ndistributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.11/apache-maven-3.9.11-bin.zip",
+        "after": "wrapperVersion=3.3.4\ndistributionType=only-script\ndistributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.11/apache-maven-3.9.11-bin.zip\ndistributionSha256Sum=0a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b"
+      }
+    ],
+    "hardcodedSecrets": [
+      {
+        "file": "src/main/resources/application.yml",
+        "line": 15,
+        "type": "Database Password"
+      }
+    ],
+    "missingAuthGuards": [
+      {
+        "file": "src/main/java/com/bank/accounts/controller/AccountsController.java",
+        "endpoint": "/api/get",
+        "description": "Endpoint to fetch customer and account details is publicly accessible without authentication."
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/controller/AccountsController.java",
+        "endpoint": "/api/create",
+        "description": "Endpoint to create new customer and account is publicly accessible without authentication."
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/controller/AccountsController.java",
+        "endpoint": "/api/update",
+        "description": "Endpoint to update customer and account details is publicly accessible without authentication."
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/controller/AccountsController.java",
+        "endpoint": "/api/delete",
+        "description": "Endpoint to delete customer and account details is publicly accessible without authentication."
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/controller/AccountsController.java",
+        "endpoint": "/api/build-info",
+        "description": "Endpoint exposing build version is publicly accessible without authentication."
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/controller/AccountsController.java",
+        "endpoint": "/api/java-version",
+        "description": "Endpoint exposing Java version is publicly accessible without authentication."
+      },
+      {
+        "file": "src/main/java/com/bank/accounts/controller/AccountsController.java",
+        "endpoint": "/api/contact-info",
+        "description": "Endpoint exposing contact information is publicly accessible without authentication."
+      }
+    ],
+    "insecureDependencies": [
+      {
+        "package": "com.h2database:h2",
+        "version": "2.3.232",
+        "reason": "The H2 database dependency is specified as version `2.3.232`, which is an unusual version number and might be a typo. Older H2 versions (prior to 2.1.214) are known to have critical Remote Code Execution (RCE) vulnerabilities (CVE-2021-42392). The ambiguity of this version, combined with the enabled H2 console and empty password in the 'prod' profile, creates a high-risk scenario. It is recommended to explicitly set a known secure and stable version."
+      }
+    ]
+  }
+}

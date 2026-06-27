@@ -10,6 +10,7 @@ interface EngineerReportProps {
     codebasePath: string | null;
     applyChange: ApplyFn;
     appliedChanges: Set<string>;
+    readOnly?: boolean;
 }
 
 const PRIORITY_STYLES = {
@@ -125,11 +126,12 @@ function CodeBlock({ code }: { code: string }) {
     );
 }
 
-function ApplyButton({ status, label, onClick, errorMessage }: {
+function ApplyButton({ status, label, onClick, errorMessage, disabled = false }: {
     status: ApplyStatus;
     label: string;
     onClick: () => void;
     errorMessage: string | null;
+    disabled?: boolean;
 }) {
     if (status === 'applied') {
         return (
@@ -143,7 +145,8 @@ function ApplyButton({ status, label, onClick, errorMessage }: {
         <div className="flex items-center gap-2">
             <button
                 onClick={onClick}
-                disabled={status === 'applying'}
+                disabled={disabled || status === 'applying'}
+                title={disabled ? 'Not available in demo mode' : undefined}
                 className="rounded bg-blue-600 px-3 py-1 text-xs font-medium text-white transition-colors hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
                 {status === 'applying' ? 'Applying...' : label}
@@ -163,11 +166,12 @@ function testKey(test: EngineerOutput['suggestedTests'][number]): string {
     return `test-file:${test.targetTestFile}`;
 }
 
-function IssueCard({ issue, codebasePath, applyChange, isApplied }: {
+function IssueCard({ issue, codebasePath, applyChange, isApplied, readOnly }: {
     issue: EngineerOutput['issues'][number];
     codebasePath: string | null;
     applyChange: ApplyFn;
     isApplied: boolean;
+    readOnly: boolean;
 }) {
     const [expanded, setExpanded] = useState(false);
     const [status, setStatus] = useState<ApplyStatus>(isApplied ? 'applied' : 'idle');
@@ -231,6 +235,7 @@ function IssueCard({ issue, codebasePath, applyChange, isApplied }: {
                                 label="Apply Fix"
                                 onClick={handleApply}
                                 errorMessage={errorMsg}
+                                disabled={readOnly}
                             />
                         </div>
                     )}
@@ -240,11 +245,12 @@ function IssueCard({ issue, codebasePath, applyChange, isApplied }: {
     );
 }
 
-function IssuesList({ issues, codebasePath, applyChange, appliedChanges }: {
+function IssuesList({ issues, codebasePath, applyChange, appliedChanges, readOnly }: {
     issues: EngineerOutput['issues'];
     codebasePath: string | null;
     applyChange: ApplyFn;
     appliedChanges: Set<string>;
+    readOnly: boolean;
 }) {
     const grouped = new Map<string, EngineerOutput['issues']>();
     for (const issue of issues) {
@@ -273,6 +279,7 @@ function IssuesList({ issues, codebasePath, applyChange, appliedChanges }: {
                                 codebasePath={codebasePath}
                                 applyChange={applyChange}
                                 isApplied={appliedChanges.has(issueKey(issue))}
+                                readOnly={readOnly}
                             />
                         ))}
                     </div>
@@ -321,11 +328,12 @@ function TestCoverageMap({ coverageMap }: { coverageMap: EngineerOutput['testCov
     );
 }
 
-function SuggestedTestCard({ test, codebasePath, applyChange, isApplied }: {
+function SuggestedTestCard({ test, codebasePath, applyChange, isApplied, readOnly }: {
     test: EngineerOutput['suggestedTests'][number];
     codebasePath: string | null;
     applyChange: ApplyFn;
     isApplied: boolean;
+    readOnly: boolean;
 }) {
     const [expanded, setExpanded] = useState(false);
     const [status, setStatus] = useState<ApplyStatus>(isApplied ? 'applied' : 'idle');
@@ -376,6 +384,7 @@ function SuggestedTestCard({ test, codebasePath, applyChange, isApplied }: {
                                 label="Write Test"
                                 onClick={handleApply}
                                 errorMessage={errorMsg}
+                                disabled={readOnly}
                             />
                         </div>
                     )}
@@ -385,11 +394,12 @@ function SuggestedTestCard({ test, codebasePath, applyChange, isApplied }: {
     );
 }
 
-function SuggestedTests({ tests, codebasePath, applyChange, appliedChanges }: {
+function SuggestedTests({ tests, codebasePath, applyChange, appliedChanges, readOnly }: {
     tests: EngineerOutput['suggestedTests'];
     codebasePath: string | null;
     applyChange: ApplyFn;
     appliedChanges: Set<string>;
+    readOnly: boolean;
 }) {
     if (tests.length === 0) {
         return <p className="text-sm text-gray-500">No test suggestions available.</p>;
@@ -404,13 +414,14 @@ function SuggestedTests({ tests, codebasePath, applyChange, appliedChanges }: {
                     codebasePath={codebasePath}
                     applyChange={applyChange}
                     isApplied={appliedChanges.has(testKey(test))}
+                    readOnly={readOnly}
                 />
             ))}
         </div>
     );
 }
 
-export function EngineerReport({ report, codebasePath, applyChange, appliedChanges }: EngineerReportProps) {
+export function EngineerReport({ report, codebasePath, applyChange, appliedChanges, readOnly = false }: EngineerReportProps) {
     return (
         <div className="space-y-4">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -438,6 +449,7 @@ export function EngineerReport({ report, codebasePath, applyChange, appliedChang
                     codebasePath={codebasePath}
                     applyChange={applyChange}
                     appliedChanges={appliedChanges}
+                    readOnly={readOnly}
                 />
             </SectionPanel>
 
@@ -451,6 +463,7 @@ export function EngineerReport({ report, codebasePath, applyChange, appliedChang
                     codebasePath={codebasePath}
                     applyChange={applyChange}
                     appliedChanges={appliedChanges}
+                    readOnly={readOnly}
                 />
             </SectionPanel>
         </div>

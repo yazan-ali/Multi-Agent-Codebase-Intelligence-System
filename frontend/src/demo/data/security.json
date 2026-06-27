@@ -1,0 +1,107 @@
+{
+  "riskScore": 90,
+  "summary": "The Accounts microservice exhibits critical security vulnerabilities primarily related to a complete lack of authentication and authorization on all API endpoints, exposing sensitive data and allowing unauthorized CRUD operations. Additionally, hardcoded credentials and an enabled H2 database console in a 'prod' profile pose severe security misconfigurations. Supply chain risks are present due to unverified Maven wrapper downloads and an ambiguous H2 database version. Implementing Spring Security and proper secrets management is crucial.",
+  "vulnerabilities": [
+    {
+      "file": "src/main/java/com/bank/accounts/controller/AccountsController.java",
+      "line": 35,
+      "severity": "Critical",
+      "owaspCategory": "A01:2021-Broken Access Control, A07:2021-Identification and Authentication Failures",
+      "description": "All REST API endpoints in `AccountsController` are publicly accessible without any authentication or authorization mechanisms. This allows any unauthenticated user to perform CRUD operations on customer and account data, leading to severe data breaches and unauthorized access.",
+      "fix": "Implement a robust authentication and authorization framework (e.g., Spring Security) to protect all sensitive endpoints. Add appropriate annotations (e.g., @PreAuthorize, @Secured) or configuration to restrict access based on user roles or authentication status.",
+      "before": "@RestController\n@RequestMapping(path = \"/api\", produces = { MediaType.APPLICATION_JSON_VALUE })\n@Validated\n@Tag(name = \"CRUD REST APIs for Accounts for Bank\", description = \"CRUD REST APIs for Bank to CREATE, UPDATE, FETCH AND DELETE account details\")\npublic class AccountsController {\n        private final IAccountService accountService;",
+      "after": "import org.springframework.security.access.prepost.PreAuthorize; // Assuming Spring Security\n// ... other imports\n\n@RestController\n@RequestMapping(path = \"/api\", produces = { MediaType.APPLICATION_JSON_VALUE })\n@Validated\n@Tag(name = \"CRUD REST APIs for Accounts for Bank\", description = \"CRUD REST APIs for Bank to CREATE, UPDATE, FETCH AND DELETE account details\")\n@PreAuthorize(\"isAuthenticated()\") // Example: require authentication for all endpoints in this controller\npublic class AccountsController {\n        private final IAccountService accountService;"
+    },
+    {
+      "file": "src/main/resources/application.yml",
+      "line": 13,
+      "severity": "Critical",
+      "owaspCategory": "A02:2021-Cryptographic Failures, A05:2021-Security Misconfiguration",
+      "description": "The H2 database 'sa' user has an empty password hardcoded in `application.yml`. Although H2 is used as an in-memory database, the `spring.profiles.active: \"prod\"` setting indicates this configuration might be used in a production-like environment, making it a critical security risk.",
+      "fix": "Remove hardcoded credentials. For production, use strong, unique passwords managed by a secrets management solution (e.g., Spring Cloud Config Server, HashiCorp Vault, Kubernetes Secrets). For development, use a separate profile with less strict security.",
+      "before": "  datasource:\n    url: jdbc:h2:mem:testdb\n    driverClassName: org.h2.Driver\n    username: sa\n    password: \"\"",
+      "after": "  datasource:\n    url: jdbc:h2:mem:testdb\n    driverClassName: org.h2.Driver\n    username: sa\n    password: \"{cipher}AQBf6g/...\" # Example: encrypted password via Spring Cloud Config"
+    },
+    {
+      "file": "src/main/resources/application.yml",
+      "line": 17,
+      "severity": "Critical",
+      "owaspCategory": "A05:2021-Security Misconfiguration",
+      "description": "The H2 database console is enabled in `application.yml` and the active profile is set to `prod`. Exposing a database console, especially with weak or no credentials, is a severe security misconfiguration that allows direct access to the database.",
+      "fix": "Disable the H2 console in production profiles. If a database console is needed for debugging, it should only be enabled in secure development environments and protected by strong authentication and network restrictions.",
+      "before": "  h2:\n    console:\n      enabled: true",
+      "after": "  h2:\n    console:\n      enabled: false"
+    },
+    {
+      "file": "src/main/java/com/bank/accounts/controller/AccountsController.java",
+      "line": 125,
+      "severity": "Medium",
+      "owaspCategory": "A04:2021-Insecure Design, A01:2021-Broken Access Control",
+      "description": "Endpoints like `/build-info`, `/java-version`, and `/contact-info` expose potentially sensitive application details (build version, Java environment, contact information) without any authentication. This information could be useful to attackers for reconnaissance.",
+      "fix": "Protect these information endpoints with appropriate authentication and authorization. Only authorized users should be able to access such details.",
+      "before": "        @GetMapping(\"/build-info\")\n        public ResponseEntity<String> getBuildVersion() {\n                return ResponseEntity.status(HttpStatus.OK).body(buildVersion);\n        }",
+      "after": "        @Operation(summary = \"Get Build Version\", description = \"REST API to fetch the build version\")\n        @ApiResponses({\n                        @ApiResponse(responseCode = \"200\", description = \"HTTP Status OK\"),\n                        @ApiResponse(responseCode = \"500\", description = \"HTTP Status Internal Server Error\", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))\n        })\n        @GetMapping(\"/build-info\")\n        @PreAuthorize(\"hasRole('ADMIN')\") // Example: restrict to ADMIN role\n        public ResponseEntity<String> getBuildVersion() {\n                return ResponseEntity.status(HttpStatus.OK).body(buildVersion);\n        }"
+    },
+    {
+      "file": "mvnw",
+      "line": 296,
+      "severity": "High",
+      "owaspCategory": "A08:2021-Software and Data Integrity Failures",
+      "description": "The `mvnw` script downloads the Maven distribution, but the `maven-wrapper.properties` file does not specify a `distributionSha256Sum`. This means the integrity of the downloaded Maven distribution is not verified, making the build process vulnerable to supply chain attacks if the download URL or the distribution itself is compromised.",
+      "fix": "Always include the `distributionSha256Sum` in `maven-wrapper.properties` to ensure the integrity of the downloaded Maven distribution. The SHA-256 sum should be obtained from a trusted source.",
+      "before": "wrapperVersion=3.3.4\ndistributionType=only-script\ndistributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.11/apache-maven-3.9.11-bin.zip",
+      "after": "wrapperVersion=3.3.4\ndistributionType=only-script\ndistributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.11/apache-maven-3.9.11-bin.zip\ndistributionSha256Sum=0a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b"
+    }
+  ],
+  "hardcodedSecrets": [
+    {
+      "file": "src/main/resources/application.yml",
+      "line": 15,
+      "type": "Database Password"
+    }
+  ],
+  "missingAuthGuards": [
+    {
+      "file": "src/main/java/com/bank/accounts/controller/AccountsController.java",
+      "endpoint": "/api/get",
+      "description": "Endpoint to fetch customer and account details is publicly accessible without authentication."
+    },
+    {
+      "file": "src/main/java/com/bank/accounts/controller/AccountsController.java",
+      "endpoint": "/api/create",
+      "description": "Endpoint to create new customer and account is publicly accessible without authentication."
+    },
+    {
+      "file": "src/main/java/com/bank/accounts/controller/AccountsController.java",
+      "endpoint": "/api/update",
+      "description": "Endpoint to update customer and account details is publicly accessible without authentication."
+    },
+    {
+      "file": "src/main/java/com/bank/accounts/controller/AccountsController.java",
+      "endpoint": "/api/delete",
+      "description": "Endpoint to delete customer and account details is publicly accessible without authentication."
+    },
+    {
+      "file": "src/main/java/com/bank/accounts/controller/AccountsController.java",
+      "endpoint": "/api/build-info",
+      "description": "Endpoint exposing build version is publicly accessible without authentication."
+    },
+    {
+      "file": "src/main/java/com/bank/accounts/controller/AccountsController.java",
+      "endpoint": "/api/java-version",
+      "description": "Endpoint exposing Java version is publicly accessible without authentication."
+    },
+    {
+      "file": "src/main/java/com/bank/accounts/controller/AccountsController.java",
+      "endpoint": "/api/contact-info",
+      "description": "Endpoint exposing contact information is publicly accessible without authentication."
+    }
+  ],
+  "insecureDependencies": [
+    {
+      "package": "com.h2database:h2",
+      "version": "2.3.232",
+      "reason": "The H2 database dependency is specified as version `2.3.232`, which is an unusual version number and might be a typo. Older H2 versions (prior to 2.1.214) are known to have critical Remote Code Execution (RCE) vulnerabilities (CVE-2021-42392). The ambiguity of this version, combined with the enabled H2 console and empty password in the 'prod' profile, creates a high-risk scenario. It is recommended to explicitly set a known secure and stable version."
+    }
+  ]
+}

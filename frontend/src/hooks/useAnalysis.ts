@@ -1,4 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
+import { IS_DEMO_MODE } from '../config';
+import { buildDemoState } from '../demo/buildDemoState';
 import type {
     AgentName,
     AgentState,
@@ -33,7 +35,9 @@ const INITIAL_STATE: AnalysisState = {
 };
 
 export function useAnalysis() {
-    const [state, setState] = useState<AnalysisState>(INITIAL_STATE);
+    const [state, setState] = useState<AnalysisState>(
+        IS_DEMO_MODE ? buildDemoState() : INITIAL_STATE,
+    );
     const abortRef = useRef<AbortController | null>(null);
 
     const updateAgent = useCallback((name: AgentName, status: AgentState['status']) => {
@@ -44,6 +48,8 @@ export function useAnalysis() {
     }, []);
 
     const analyze = useCallback(async (path: string) => {
+        if (IS_DEMO_MODE) return;
+
         abortRef.current?.abort();
         const controller = new AbortController();
         abortRef.current = controller;
@@ -139,6 +145,10 @@ export function useAnalysis() {
     }, [updateAgent]);
 
     const applyChange = useCallback(async (request: ApplyChangeRequest): Promise<ApplyChangeResponse> => {
+        if (IS_DEMO_MODE) {
+            return { success: false, file: request.file, message: 'Not available in demo mode' };
+        }
+
         try {
             const res = await fetch('/api/apply-change', {
                 method: 'POST',

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { IS_DEMO_MODE } from './config';
 import { useAnalysis } from './hooks/useAnalysis';
 import { PathInput } from './components/PathInput';
 import { AgentConsole, type TabName } from './components/AgentConsole';
@@ -16,7 +17,19 @@ function App() {
             <div className="mx-auto max-w-6xl px-6 py-8 space-y-6">
                 <h1 className="text-2xl font-bold">Codebase Intelligence</h1>
 
-                <PathInput onAnalyze={analyze} isAnalyzing={state.isAnalyzing} />
+                {IS_DEMO_MODE && (
+                    <div className="rounded-lg border border-blue-700/50 bg-blue-900/20 px-4 py-3 text-sm text-blue-200">
+                        Interactive demo — reports are pre-loaded from a sample Spring Boot microservice analysis.
+                        Apply Fix and Write Test are view-only.
+                    </div>
+                )}
+
+                <PathInput
+                    onAnalyze={analyze}
+                    isAnalyzing={state.isAnalyzing}
+                    demoMode={IS_DEMO_MODE}
+                    demoPath={state.codebasePath ?? ''}
+                />
 
                 <AgentConsole
                     agents={state.agents}
@@ -36,7 +49,7 @@ function App() {
                         <ExplorerReport report={state.explorerReport} />
                     )}
 
-                    {activeTab === 'explorer' && !state.explorerReport && !state.isAnalyzing && (
+                    {activeTab === 'explorer' && !state.explorerReport && !state.isAnalyzing && !IS_DEMO_MODE && (
                         <EmptyState message="Enter a folder path and click Analyze to start." />
                     )}
 
@@ -50,10 +63,11 @@ function App() {
                             codebasePath={state.codebasePath}
                             applyChange={applyChange}
                             appliedChanges={state.appliedChanges}
+                            readOnly={IS_DEMO_MODE}
                         />
                     )}
 
-                    {activeTab === 'engineer' && !state.engineerReport && !state.isAnalyzing && (
+                    {activeTab === 'engineer' && !state.engineerReport && !state.isAnalyzing && !IS_DEMO_MODE && (
                         <EmptyState message="Run an analysis to see the Engineer report." />
                     )}
 
@@ -67,10 +81,11 @@ function App() {
                             codebasePath={state.codebasePath}
                             applyChange={applyChange}
                             appliedChanges={state.appliedChanges}
+                            readOnly={IS_DEMO_MODE}
                         />
                     )}
 
-                    {activeTab === 'security' && !state.securityReport && !state.isAnalyzing && (
+                    {activeTab === 'security' && !state.securityReport && !state.isAnalyzing && !IS_DEMO_MODE && (
                         <EmptyState message="Run an analysis to see the Security report." />
                     )}
 

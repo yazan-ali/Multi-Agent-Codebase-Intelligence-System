@@ -11,6 +11,7 @@ interface SecurityReportProps {
     codebasePath: string | null;
     applyChange: ApplyFn;
     appliedChanges: Set<string>;
+    readOnly?: boolean;
 }
 
 const SEVERITY_STYLES = {
@@ -94,11 +95,12 @@ function CodeBlock({ code }: { code: string }) {
     );
 }
 
-function ApplyButton({ status, label, onClick, errorMessage }: {
+function ApplyButton({ status, label, onClick, errorMessage, disabled = false }: {
     status: ApplyStatus;
     label: string;
     onClick: () => void;
     errorMessage: string | null;
+    disabled?: boolean;
 }) {
     if (status === 'applied') {
         return (
@@ -112,7 +114,8 @@ function ApplyButton({ status, label, onClick, errorMessage }: {
         <div className="flex items-center gap-2">
             <button
                 onClick={onClick}
-                disabled={status === 'applying'}
+                disabled={disabled || status === 'applying'}
+                title={disabled ? 'Not available in demo mode' : undefined}
                 className="rounded bg-blue-600 px-3 py-1 text-xs font-medium text-white transition-colors hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
                 {status === 'applying' ? 'Applying...' : label}
@@ -128,11 +131,12 @@ function vulnKey(vuln: SecurityOutput['vulnerabilities'][number]): string {
     return `issue-fix:${vuln.file}:${vuln.before.slice(0, 40)}`;
 }
 
-function VulnerabilityCard({ vuln, codebasePath, applyChange, isApplied }: {
+function VulnerabilityCard({ vuln, codebasePath, applyChange, isApplied, readOnly }: {
     vuln: SecurityOutput['vulnerabilities'][number];
     codebasePath: string | null;
     applyChange: ApplyFn;
     isApplied: boolean;
+    readOnly: boolean;
 }) {
     const [expanded, setExpanded] = useState(false);
     const [status, setStatus] = useState<ApplyStatus>(isApplied ? 'applied' : 'idle');
@@ -207,6 +211,7 @@ function VulnerabilityCard({ vuln, codebasePath, applyChange, isApplied }: {
                                 label="Apply Fix"
                                 onClick={handleApply}
                                 errorMessage={errorMsg}
+                                disabled={readOnly}
                             />
                         </div>
                     )}
@@ -216,11 +221,12 @@ function VulnerabilityCard({ vuln, codebasePath, applyChange, isApplied }: {
     );
 }
 
-function VulnerabilitiesList({ vulnerabilities, codebasePath, applyChange, appliedChanges }: {
+function VulnerabilitiesList({ vulnerabilities, codebasePath, applyChange, appliedChanges, readOnly }: {
     vulnerabilities: SecurityOutput['vulnerabilities'];
     codebasePath: string | null;
     applyChange: ApplyFn;
     appliedChanges: Set<string>;
+    readOnly: boolean;
 }) {
     if (vulnerabilities.length === 0) {
         return <p className="text-sm text-gray-500">No vulnerabilities detected.</p>;
@@ -255,6 +261,7 @@ function VulnerabilitiesList({ vulnerabilities, codebasePath, applyChange, appli
                                 codebasePath={codebasePath}
                                 applyChange={applyChange}
                                 isApplied={appliedChanges.has(vulnKey(vuln))}
+                                readOnly={readOnly}
                             />
                         ))}
                     </div>
@@ -291,14 +298,18 @@ function MissingAuthGuards({ guards }: { guards: SecurityOutput['missingAuthGuar
     return (
         <div className="space-y-1.5">
             {guards.map((guard, i) => (
-                <div key={`${guard.file}-${guard.endpoint}-${i}`} className="rounded border border-gray-700 bg-gray-800/50 px-3 py-2.5">
-                    <div className="flex items-center gap-2 text-xs text-gray-400">
-                        <span className="text-red-400 text-sm">🔓</span>
-                        <span className="font-mono">{guard.file}</span>
-                        <span className="text-gray-600">·</span>
-                        <span className="font-mono text-amber-300">{guard.endpoint}</span>
+                <div key={`${guard.file}-${guard.endpoint}-${i}`} className="rounded border border-gray-700 bg-gray-800/50 px-3 py-2.5 min-w-0">
+                    <div className="flex items-start gap-2 text-xs text-gray-400 min-w-0">
+                        <span className="text-red-400 text-sm shrink-0">🔓</span>
+                        <div className="min-w-0 flex-1 space-y-1">
+                            <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                                <span className="font-mono break-all">{guard.file}</span>
+                                <span className="text-gray-600 shrink-0">·</span>
+                                <span className="font-mono text-amber-300 break-all">{guard.endpoint}</span>
+                            </div>
+                            <p className="text-sm text-gray-300 wrap-break-word">{guard.description}</p>
+                        </div>
                     </div>
-                    <p className="text-sm text-gray-300 mt-1 ml-6">{guard.description}</p>
                 </div>
             ))}
         </div>
@@ -357,7 +368,7 @@ function OwaspBreakdown({ vulnerabilities }: { vulnerabilities: SecurityOutput['
     );
 }
 
-export function SecurityReport({ report, codebasePath, applyChange, appliedChanges }: SecurityReportProps) {
+export function SecurityReport({ report, codebasePath, applyChange, appliedChanges, readOnly = false }: SecurityReportProps) {
     return (
         <div className="space-y-4">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -386,6 +397,7 @@ export function SecurityReport({ report, codebasePath, applyChange, appliedChang
                     codebasePath={codebasePath}
                     applyChange={applyChange}
                     appliedChanges={appliedChanges}
+                    readOnly={readOnly}
                 />
             </SectionPanel>
 

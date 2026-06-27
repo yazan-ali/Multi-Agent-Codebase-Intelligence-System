@@ -1,0 +1,580 @@
+{
+  "stack": {
+    "languages": [
+      "Java",
+      "Shell",
+      "PowerShell",
+      "SQL"
+    ],
+    "frameworks": [
+      "Spring Boot",
+      "Spring Data JPA",
+      "Spring Web",
+      "Spring Cloud Config",
+      "Swagger/OpenAPI"
+    ],
+    "libraries": [
+      "Lombok",
+      "H2 Database",
+      "Springdoc OpenAPI"
+    ],
+    "testFrameworks": [
+      "JUnit 5"
+    ]
+  },
+  "entryPoints": [
+    "src/main/java/com/bank/accounts/AccountsApplication.java"
+  ],
+  "dependencyMap": {
+    "src/main/java/com/bank/accounts/AccountsApplication.java": [
+      "src/main/java/com/bank/accounts/dto/AccountsContactsInfoDto.java"
+    ],
+    "src/main/java/com/bank/accounts/audit/AuditAwareImpl.java": [],
+    "src/main/java/com/bank/accounts/constants/AccountsConstants.java": [],
+    "src/main/java/com/bank/accounts/controller/AccountsController.java": [
+      "src/main/java/com/bank/accounts/constants/AccountsConstants.java",
+      "src/main/java/com/bank/accounts/dto/AccountsContactsInfoDto.java",
+      "src/main/java/com/bank/accounts/dto/CustomerDto.java",
+      "src/main/java/com/bank/accounts/dto/ErrorResponseDto.java",
+      "src/main/java/com/bank/accounts/dto/ResponseDto.java",
+      "src/main/java/com/bank/accounts/service/IAccountService.java"
+    ],
+    "src/main/java/com/bank/accounts/dto/AccountsContactsInfoDto.java": [],
+    "src/main/java/com/bank/accounts/dto/AccountsDto.java": [],
+    "src/main/java/com/bank/accounts/dto/CustomerDto.java": [
+      "src/main/java/com/bank/accounts/dto/AccountsDto.java"
+    ],
+    "src/main/java/com/bank/accounts/dto/ErrorResponseDto.java": [],
+    "src/main/java/com/bank/accounts/dto/ResponseDto.java": [],
+    "src/main/java/com/bank/accounts/entity/Accounts.java": [
+      "src/main/java/com/bank/accounts/entity/BaseEntity.java"
+    ],
+    "src/main/java/com/bank/accounts/entity/BaseEntity.java": [],
+    "src/main/java/com/bank/accounts/entity/Customer.java": [
+      "src/main/java/com/bank/accounts/entity/BaseEntity.java"
+    ],
+    "src/main/java/com/bank/accounts/exception/CustomerAlreadyExistsException.java": [],
+    "src/main/java/com/bank/accounts/exception/GlobalExceptionHandler.java": [
+      "src/main/java/com/bank/accounts/dto/ErrorResponseDto.java",
+      "src/main/java/com/bank/accounts/exception/CustomerAlreadyExistsException.java",
+      "src/main/java/com/bank/accounts/exception/ResourceNotFoundException.java"
+    ],
+    "src/main/java/com/bank/accounts/exception/ObjectError.java": [],
+    "src/main/java/com/bank/accounts/exception/ResourceNotFoundException.java": [],
+    "src/main/java/com/bank/accounts/mapper/AccountsMapper.java": [
+      "src/main/java/com/bank/accounts/dto/AccountsDto.java",
+      "src/main/java/com/bank/accounts/entity/Accounts.java"
+    ],
+    "src/main/java/com/bank/accounts/mapper/CustomerMapper.java": [
+      "src/main/java/com/bank/accounts/dto/CustomerDto.java",
+      "src/main/java/com/bank/accounts/entity/Customer.java"
+    ],
+    "src/main/java/com/bank/accounts/repository/AccountsRepository.java": [
+      "src/main/java/com/bank/accounts/entity/Accounts.java"
+    ],
+    "src/main/java/com/bank/accounts/repository/CustomerRepository.java": [
+      "src/main/java/com/bank/accounts/entity/Customer.java"
+    ],
+    "src/main/java/com/bank/accounts/service/IAccountService.java": [
+      "src/main/java/com/bank/accounts/dto/CustomerDto.java"
+    ],
+    "src/main/java/com/bank/accounts/service/impl/AccountService.java": [
+      "src/main/java/com/bank/accounts/dto/AccountsDto.java",
+      "src/main/java/com/bank/accounts/dto/CustomerDto.java",
+      "src/main/java/com/bank/accounts/entity/Accounts.java",
+      "src/main/java/com/bank/accounts/entity/Customer.java",
+      "src/main/java/com/bank/accounts/exception/CustomerAlreadyExistsException.java",
+      "src/main/java/com/bank/accounts/exception/ResourceNotFoundException.java",
+      "src/main/java/com/bank/accounts/mapper/AccountsMapper.java",
+      "src/main/java/com/bank/accounts/mapper/CustomerMapper.java",
+      "src/main/java/com/bank/accounts/repository/AccountsRepository.java",
+      "src/main/java/com/bank/accounts/repository/CustomerRepository.java",
+      "src/main/java/com/bank/accounts/service/IAccountService.java",
+      "src/main/java/com/bank/accounts/constants/AccountsConstants.java"
+    ],
+    "src/test/java/com/bank/accounts/AccountsApplicationTests.java": []
+  },
+  "architectureLayers": [
+    {
+      "layer": "Application",
+      "files": [
+        "src/main/java/com/bank/accounts/AccountsApplication.java"
+      ]
+    },
+    {
+      "layer": "Controller",
+      "files": [
+        "src/main/java/com/bank/accounts/controller/AccountsController.java"
+      ]
+    },
+    {
+      "layer": "Service",
+      "files": [
+        "src/main/java/com/bank/accounts/service/IAccountService.java",
+        "src/main/java/com/bank/accounts/service/impl/AccountService.java"
+      ]
+    },
+    {
+      "layer": "Repository",
+      "files": [
+        "src/main/java/com/bank/accounts/repository/AccountsRepository.java",
+        "src/main/java/com/bank/accounts/repository/CustomerRepository.java"
+      ]
+    },
+    {
+      "layer": "Entity",
+      "files": [
+        "src/main/java/com/bank/accounts/entity/Accounts.java",
+        "src/main/java/com/bank/accounts/entity/BaseEntity.java",
+        "src/main/java/com/bank/accounts/entity/Customer.java"
+      ]
+    },
+    {
+      "layer": "DTO",
+      "files": [
+        "src/main/java/com/bank/accounts/dto/AccountsContactsInfoDto.java",
+        "src/main/java/com/bank/accounts/dto/AccountsDto.java",
+        "src/main/java/com/bank/accounts/dto/CustomerDto.java",
+        "src/main/java/com/bank/accounts/dto/ErrorResponseDto.java",
+        "src/main/java/com/bank/accounts/dto/ResponseDto.java"
+      ]
+    },
+    {
+      "layer": "Mapper",
+      "files": [
+        "src/main/java/com/bank/accounts/mapper/AccountsMapper.java",
+        "src/main/java/com/bank/accounts/mapper/CustomerMapper.java"
+      ]
+    },
+    {
+      "layer": "Exception Handling",
+      "files": [
+        "src/main/java/com/bank/accounts/exception/CustomerAlreadyExistsException.java",
+        "src/main/java/com/bank/accounts/exception/GlobalExceptionHandler.java",
+        "src/main/java/com/bank/accounts/exception/ObjectError.java",
+        "src/main/java/com/bank/accounts/exception/ResourceNotFoundException.java"
+      ]
+    },
+    {
+      "layer": "Audit",
+      "files": [
+        "src/main/java/com/bank/accounts/audit/AuditAwareImpl.java"
+      ]
+    },
+    {
+      "layer": "Constants",
+      "files": [
+        "src/main/java/com/bank/accounts/constants/AccountsConstants.java"
+      ]
+    },
+    {
+      "layer": "Configuration/Infrastructure",
+      "files": [
+        "pom.xml",
+        "src/main/resources/application.yml",
+        "src/main/resources/schema.sql",
+        "Dockerfile"
+      ]
+    },
+    {
+      "layer": "Build Scripts/Metadata",
+      "files": [
+        ".gitattributes",
+        ".gitignore",
+        ".mvn/wrapper/maven-wrapper.properties",
+        ".vscode/NEWLY_CREATED_BY_SPRING_INITIALIZR",
+        "mvnw",
+        "mvnw.cmd",
+        "HELP.md",
+        "target/accounts-0.0.1-SNAPSHOT.jar",
+        "target/classes/application.yml",
+        "target/classes/com/bank/accounts/AccountsApplication.class",
+        "target/classes/com/bank/accounts/audit/AuditAwareImpl.class",
+        "target/classes/com/bank/accounts/constants/AccountsConstants.class",
+        "target/classes/com/bank/accounts/controller/AccountsController.class",
+        "target/classes/com/bank/accounts/dto/AccountsContactsInfoDto.class",
+        "target/classes/com/bank/accounts/dto/AccountsDto.class",
+        "target/classes/com/bank/accounts/dto/CustomerDto.class",
+        "target/classes/com/bank/accounts/dto/ErrorResponseDto.class",
+        "target/classes/com/bank/accounts/dto/ResponseDto.class",
+        "target/classes/com/bank/accounts/entity/Accounts.class",
+        "target/classes/com/bank/accounts/entity/BaseEntity.class",
+        "target/classes/com/bank/accounts/entity/Customer.class",
+        "target/classes/com/bank/accounts/exception/CustomerAlreadyExistsException.class",
+        "target/classes/com/bank/accounts/exception/GlobalExceptionHandler.class",
+        "target/classes/com/bank/accounts/exception/ObjectError.class",
+        "target/classes/com/bank/accounts/exception/ResourceNotFoundException.class",
+        "target/classes/com/bank/accounts/mapper/AccountsMapper.class",
+        "target/classes/com/bank/accounts/mapper/CustomerMapper.class",
+        "target/classes/com/bank/accounts/repository/AccountsRepository.class",
+        "target/classes/com/bank/accounts/repository/CustomerRepository.class",
+        "target/classes/com/bank/accounts/service/IAccountService.class",
+        "target/classes/com/bank/accounts/service/impl/AccountService.class",
+        "target/classes/schema.sql",
+        "target/maven-archiver/pom.properties",
+        "target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst",
+        "target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst",
+        "target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/createdFiles.lst",
+        "target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst",
+        "target/surefire-reports/2025-10-12T19-43-45_067.dumpstream",
+        "target/surefire-reports/com.bank.accounts.AccountsApplicationTests.txt",
+        "target/surefire-reports/TEST-com.bank.accounts.AccountsApplicationTests.xml",
+        "target/test-classes/com/bank/accounts/AccountsApplicationTests.class"
+      ]
+    },
+    {
+      "layer": "Test",
+      "files": [
+        "src/test/java/com/bank/accounts/AccountsApplicationTests.java"
+      ]
+    }
+  ],
+  "fileComplexity": [
+    {
+      "file": ".gitattributes",
+      "score": 1,
+      "reason": "Configuration file, minimal complexity."
+    },
+    {
+      "file": ".gitignore",
+      "score": 1,
+      "reason": "Configuration file, minimal complexity."
+    },
+    {
+      "file": ".mvn/wrapper/maven-wrapper.properties",
+      "score": 1,
+      "reason": "Configuration file, minimal complexity."
+    },
+    {
+      "file": ".vscode/NEWLY_CREATED_BY_SPRING_INITIALIZR",
+      "score": 1,
+      "reason": "Empty placeholder file, minimal complexity."
+    },
+    {
+      "file": "Dockerfile",
+      "score": 2,
+      "reason": "Simple Docker build instructions."
+    },
+    {
+      "file": "HELP.md",
+      "score": 1,
+      "reason": "Documentation file, minimal complexity."
+    },
+    {
+      "file": "mvnw",
+      "score": 3,
+      "reason": "Shell script for Maven wrapper, moderate logic for download and execution."
+    },
+    {
+      "file": "mvnw.cmd",
+      "score": 3,
+      "reason": "PowerShell script for Maven wrapper, moderate logic for download and execution."
+    },
+    {
+      "file": "pom.xml",
+      "score": 4,
+      "reason": "Maven project configuration, defines dependencies, plugins, and build lifecycle. Moderate complexity due to numerous dependencies and plugins."
+    },
+    {
+      "file": "src/main/java/com/bank/accounts/AccountsApplication.java",
+      "score": 4,
+      "reason": "Main Spring Boot application class, includes configuration annotations (SpringBootApplication, EnableJpaAuditing, EnableConfigurationProperties, OpenAPIDefinition) and entry point logic. Moderate complexity due to framework setup."
+    },
+    {
+      "file": "src/main/java/com/bank/accounts/audit/AuditAwareImpl.java",
+      "score": 2,
+      "reason": "Simple Spring Data JPA AuditorAware implementation."
+    },
+    {
+      "file": "src/main/java/com/bank/accounts/constants/AccountsConstants.java",
+      "score": 1,
+      "reason": "Contains only static final constants, minimal complexity."
+    },
+    {
+      "file": "src/main/java/com/bank/accounts/controller/AccountsController.java",
+      "score": 8,
+      "reason": "Handles multiple REST endpoints (CRUD, info), extensive use of Spring annotations, request validation, and Swagger documentation. High coupling to service layer, DTOs, and constants. High complexity due to diverse responsibilities and annotations."
+    },
+    {
+      "file": "src/main/java/com/bank/accounts/dto/AccountsContactsInfoDto.java",
+      "score": 2,
+      "reason": "Simple record DTO for contact information, configured via @ConfigurationProperties."
+    },
+    {
+      "file": "src/main/java/com/bank/accounts/dto/AccountsDto.java",
+      "score": 2,
+      "reason": "Simple DTO with validation annotations and Lombok annotations."
+    },
+    {
+      "file": "src/main/java/com/bank/accounts/dto/CustomerDto.java",
+      "score": 3,
+      "reason": "DTO for customer and account information, includes nested AccountsDto and validation annotations. Slightly more complex due to nested DTO."
+    },
+    {
+      "file": "src/main/java/com/bank/accounts/dto/ErrorResponseDto.java",
+      "score": 2,
+      "reason": "Simple DTO for error responses, with Lombok and Swagger annotations."
+    },
+    {
+      "file": "src/main/java/com/bank/accounts/dto/ResponseDto.java",
+      "score": 2,
+      "reason": "Simple DTO for standard API responses, with Lombok and Swagger annotations."
+    },
+    {
+      "file": "src/main/java/com/bank/accounts/entity/Accounts.java",
+      "score": 2,
+      "reason": "Simple JPA entity, extends BaseEntity, with Lombok annotations."
+    },
+    {
+      "file": "src/main/java/com/bank/accounts/entity/BaseEntity.java",
+      "score": 3,
+      "reason": "Base entity for auditing, includes JPA and Spring Data annotations for created/updated fields. Moderate complexity due to auditing setup."
+    },
+    {
+      "file": "src/main/java/com/bank/accounts/entity/Customer.java",
+      "score": 2,
+      "reason": "Simple JPA entity, extends BaseEntity, with Lombok annotations."
+    },
+    {
+      "file": "src/main/java/com/bank/accounts/exception/CustomerAlreadyExistsException.java",
+      "score": 2,
+      "reason": "Custom runtime exception with @ResponseStatus annotation."
+    },
+    {
+      "file": "src/main/java/com/bank/accounts/exception/GlobalExceptionHandler.java",
+      "score": 7,
+      "reason": "Centralized exception handler, handles multiple custom exceptions and validation errors. Moderate to high complexity due to handling different exception types and constructing error responses."
+    },
+    {
+      "file": "src/main/java/com/bank/accounts/exception/ObjectError.java",
+      "score": 1,
+      "reason": "Empty class, likely a leftover or unused placeholder."
+    },
+    {
+      "file": "src/main/java/com/bank/accounts/exception/ResourceNotFoundException.java",
+      "score": 2,
+      "reason": "Custom runtime exception with @ResponseStatus annotation and formatted message."
+    },
+    {
+      "file": "src/main/java/com/bank/accounts/mapper/AccountsMapper.java",
+      "score": 3,
+      "reason": "Static utility class for mapping between Accounts entity and DTO. Simple mapping logic."
+    },
+    {
+      "file": "src/main/java/com/bank/accounts/mapper/CustomerMapper.java",
+      "score": 3,
+      "reason": "Static utility class for mapping between Customer entity and DTO. Simple mapping logic."
+    },
+    {
+      "file": "src/main/java/com/bank/accounts/repository/AccountsRepository.java",
+      "score": 3,
+      "reason": "Spring Data JPA repository interface, defines custom query methods and transactional delete. Moderate complexity due to custom methods and annotations."
+    },
+    {
+      "file": "src/main/java/com/bank/accounts/repository/CustomerRepository.java",
+      "score": 3,
+      "reason": "Spring Data JPA repository interface, defines a custom query method. Moderate complexity."
+    },
+    {
+      "file": "src/main/java/com/bank/accounts/service/IAccountService.java",
+      "score": 3,
+      "reason": "Service interface, defines core business operations. Moderate complexity as it dictates the service contract."
+    },
+    {
+      "file": "src/main/java/com/bank/accounts/service/impl/AccountService.java",
+      "score": 9,
+      "reason": "Contains core business logic for account management (CRUD), interacts with multiple repositories, mappers, DTOs, and handles custom exceptions. High complexity due to extensive business logic and dependencies."
+    },
+    {
+      "file": "src/main/resources/application.yml",
+      "score": 2,
+      "reason": "Spring Boot application configuration, defines server port, datasource, JPA settings, and config server import."
+    },
+    {
+      "file": "src/main/resources/schema.sql",
+      "score": 2,
+      "reason": "SQL schema definition for customer and accounts tables."
+    },
+    {
+      "file": "src/test/java/com/bank/accounts/AccountsApplicationTests.java",
+      "score": 2,
+      "reason": "Basic Spring Boot test class, minimal logic."
+    },
+    {
+      "file": "target/accounts-0.0.1-SNAPSHOT.jar",
+      "score": 1,
+      "reason": "Compiled artifact, not source code."
+    },
+    {
+      "file": "target/classes/application.yml",
+      "score": 1,
+      "reason": "Compiled artifact, not source code."
+    },
+    {
+      "file": "target/classes/com/bank/accounts/AccountsApplication.class",
+      "score": 1,
+      "reason": "Compiled artifact, not source code."
+    },
+    {
+      "file": "target/classes/com/bank/accounts/audit/AuditAwareImpl.class",
+      "score": 1,
+      "reason": "Compiled artifact, not source code."
+    },
+    {
+      "file": "target/classes/com/bank/accounts/constants/AccountsConstants.class",
+      "score": 1,
+      "reason": "Compiled artifact, not source code."
+    },
+    {
+      "file": "target/classes/com/bank/accounts/controller/AccountsController.class",
+      "score": 1,
+      "reason": "Compiled artifact, not source code."
+    },
+    {
+      "file": "target/classes/com/bank/accounts/dto/AccountsContactsInfoDto.class",
+      "score": 1,
+      "reason": "Compiled artifact, not source code."
+    },
+    {
+      "file": "target/classes/com/bank/accounts/dto/AccountsDto.class",
+      "score": 1,
+      "reason": "Compiled artifact, not source code."
+    },
+    {
+      "file": "target/classes/com/bank/accounts/dto/CustomerDto.class",
+      "score": 1,
+      "reason": "Compiled artifact, not source code."
+    },
+    {
+      "file": "target/classes/com/bank/accounts/dto/ErrorResponseDto.class",
+      "score": 1,
+      "reason": "Compiled artifact, not source code."
+    },
+    {
+      "file": "target/classes/com/bank/accounts/dto/ResponseDto.class",
+      "score": 1,
+      "reason": "Compiled artifact, not source code."
+    },
+    {
+      "file": "target/classes/com/bank/accounts/entity/Accounts.class",
+      "score": 1,
+      "reason": "Compiled artifact, not source code."
+    },
+    {
+      "file": "target/classes/com/bank/accounts/entity/BaseEntity.class",
+      "score": 1,
+      "reason": "Compiled artifact, not source code."
+    },
+    {
+      "file": "target/classes/com/bank/accounts/entity/Customer.class",
+      "score": 1,
+      "reason": "Compiled artifact, not source code."
+    },
+    {
+      "file": "target/classes/com/bank/accounts/exception/CustomerAlreadyExistsException.class",
+      "score": 1,
+      "reason": "Compiled artifact, not source code."
+    },
+    {
+      "file": "target/classes/com/bank/accounts/exception/GlobalExceptionHandler.class",
+      "score": 1,
+      "reason": "Compiled artifact, not source code."
+    },
+    {
+      "file": "target/classes/com/bank/accounts/exception/ObjectError.class",
+      "score": 1,
+      "reason": "Compiled artifact, not source code."
+    },
+    {
+      "file": "target/classes/com/bank/accounts/exception/ResourceNotFoundException.class",
+      "score": 1,
+      "reason": "Compiled artifact, not source code."
+    },
+    {
+      "file": "target/classes/com/bank/accounts/mapper/AccountsMapper.class",
+      "score": 1,
+      "reason": "Compiled artifact, not source code."
+    },
+    {
+      "file": "target/classes/com/bank/accounts/mapper/CustomerMapper.class",
+      "score": 1,
+      "reason": "Compiled artifact, not source code."
+    },
+    {
+      "file": "target/classes/com/bank/accounts/repository/AccountsRepository.class",
+      "score": 1,
+      "reason": "Compiled artifact, not source code."
+    },
+    {
+      "file": "target/classes/com/bank/accounts/repository/CustomerRepository.class",
+      "score": 1,
+      "reason": "Compiled artifact, not source code."
+    },
+    {
+      "file": "target/classes/com/bank/accounts/service/IAccountService.class",
+      "score": 1,
+      "reason": "Compiled artifact, not source code."
+    },
+    {
+      "file": "target/classes/com/bank/accounts/service/impl/AccountService.class",
+      "score": 1,
+      "reason": "Compiled artifact, not source code."
+    },
+    {
+      "file": "target/classes/schema.sql",
+      "score": 1,
+      "reason": "Compiled artifact, not source code."
+    },
+    {
+      "file": "target/maven-archiver/pom.properties",
+      "score": 1,
+      "reason": "Build metadata, not source code."
+    },
+    {
+      "file": "target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst",
+      "score": 1,
+      "reason": "Build metadata, not source code."
+    },
+    {
+      "file": "target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst",
+      "score": 1,
+      "reason": "Build metadata, not source code."
+    },
+    {
+      "file": "target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/createdFiles.lst",
+      "score": 1,
+      "reason": "Build metadata, not source code."
+    },
+    {
+      "file": "target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst",
+      "score": 1,
+      "reason": "Build metadata, not source code."
+    },
+    {
+      "file": "target/surefire-reports/2025-10-12T19-43-45_067.dumpstream",
+      "score": 1,
+      "reason": "Test report artifact, not source code."
+    },
+    {
+      "file": "target/surefire-reports/com.bank.accounts.AccountsApplicationTests.txt",
+      "score": 1,
+      "reason": "Test report artifact, not source code."
+    },
+    {
+      "file": "target/surefire-reports/TEST-com.bank.accounts.AccountsApplicationTests.xml",
+      "score": 1,
+      "reason": "Test report artifact, not source code."
+    },
+    {
+      "file": "target/test-classes/com/bank/accounts/AccountsApplicationTests.class",
+      "score": 1,
+      "reason": "Compiled artifact, not source code."
+    }
+  ],
+  "architectureSummary": "This project implements a Spring Boot microservice for managing bank accounts. It follows a layered architecture, typical for Spring applications, separating concerns into distinct components. The application exposes RESTful APIs for CRUD operations on customer and account details, integrates with a database using Spring Data JPA, and includes robust error handling and API documentation.\n\n## Layers\n*   **Application Layer**: The entry point and orchestrator of the Spring Boot application (`src/main/java/com/bank/accounts/AccountsApplication.java`).\n*   **Controller Layer**: Handles incoming HTTP requests, performs input validation, and delegates business logic to the service layer (`src/main/java/com/bank/accounts/controller/AccountsController.java`).\n*   **Service Layer**: Contains the core business logic and transaction management. It defines an interface (`src/main/java/com/bank/accounts/service/IAccountService.java`) and an implementation (`src/main/java/com/bank/accounts/service/impl/AccountService.java`).\n*   **Repository Layer**: Manages data persistence operations using Spring Data JPA, interacting with the underlying database (`src/main/java/com/bank/accounts/repository/AccountsRepository.java`, `src/main/java/com/bank/accounts/repository/CustomerRepository.java`).\n*   **Entity Layer**: Defines the domain model objects that map to database tables (`src/main/java/com/bank/accounts/entity/Accounts.java`, `src/main/java/com/bank/accounts/entity/Customer.java`, `src/main/java/com/bank/accounts/entity/BaseEntity.java`).\n*   **DTO Layer**: Data Transfer Objects used for request and response payloads, often including validation annotations (`src/main/java/com/bank/accounts/dto/*.java`).\n*   **Mapper Layer**: Utility classes responsible for converting between DTOs and Entities (`src/main/java/com/bank/accounts/mapper/AccountsMapper.java`, `src/main/java/com/bank/accounts/mapper/CustomerMapper.java`).\n*   **Exception Handling Layer**: Custom exceptions (`src/main/java/com/bank/accounts/exception/CustomerAlreadyExistsException.java`, `src/main/java/com/bank/accounts/exception/ResourceNotFoundException.java`) and a global handler (`src/main/java/com/bank/accounts/exception/GlobalExceptionHandler.java`) for consistent error responses.\n*   **Audit Layer**: Provides auditing capabilities for entities (`src/main/java/com/bank/accounts/audit/AuditAwareImpl.java`).\n*   **Constants Layer**: Holds application-wide constant values (`src/main/java/com/bank/accounts/constants/AccountsConstants.java`).\n\n## Data Flow\nClient requests hit the `AccountsController`, which validates input (using DTOs) and calls the `IAccountService`. The `AccountService` orchestrates business logic, interacting with `AccountsRepository` and `CustomerRepository` for data access. Mappers convert entities to DTOs for responses. Exceptions are caught and processed by `GlobalExceptionHandler` to return standardized error messages.\n\n## Key Observations\n*   The use of Lombok reduces boilerplate code for DTOs and Entities.\n*   Spring Data JPA simplifies database interactions.\n*   Swagger/OpenAPI annotations provide clear API documentation.\n*   Centralized exception handling ensures consistent error responses.\n*   The `application.yml` configures the H2 in-memory database for development/testing and imports configuration from a config server, indicating a microservice pattern for externalized configuration.",
+  "highCouplingFlags": [
+    "src/main/java/com/bank/accounts/controller/AccountsController.java",
+    "src/main/java/com/bank/accounts/service/impl/AccountService.java",
+    "src/main/java/com/bank/accounts/exception/GlobalExceptionHandler.java"
+  ]
+}
