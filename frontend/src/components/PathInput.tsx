@@ -29,10 +29,10 @@ export function PathInput({ onAnalyze, isAnalyzing, demoMode = false, demoPath =
             />
             <button
                 type="submit"
-                disabled={isAnalyzing || demoMode || !path.trim()}
+                disabled={isAnalyzing || !path.trim()}
                 className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-                {demoMode ? 'Demo' : isAnalyzing ? 'Analyzing...' : 'Analyze'}
+                {isAnalyzing ? 'Analyzing...' : 'Analyze'}
             </button>
         </form>
     );

@@ -1,6 +1,7 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { IS_DEMO_MODE } from '../config';
-import { buildDemoState } from '../demo/buildDemoState';
+import { buildDemoIdleState } from '../demo/demoData';
+import { cancelDemoSimulation, simulateDemoAnalysis } from '../demo/simulateDemoAnalysis';
 import type {
     AgentName,
     AgentState,
@@ -36,9 +37,17 @@ const INITIAL_STATE: AnalysisState = {
 
 export function useAnalysis() {
     const [state, setState] = useState<AnalysisState>(
-        IS_DEMO_MODE ? buildDemoState() : INITIAL_STATE,
+        IS_DEMO_MODE ? buildDemoIdleState() : INITIAL_STATE,
     );
     const abortRef = useRef<AbortController | null>(null);
+
+    useEffect(() => {
+        return () => {
+            if (IS_DEMO_MODE) {
+                cancelDemoSimulation();
+            }
+        };
+    }, []);
 
     const updateAgent = useCallback((name: AgentName, status: AgentState['status']) => {
         setState((prev) => ({
@@ -48,7 +57,10 @@ export function useAnalysis() {
     }, []);
 
     const analyze = useCallback(async (path: string) => {
-        if (IS_DEMO_MODE) return;
+        if (IS_DEMO_MODE) {
+            await simulateDemoAnalysis(path, setState, updateAgent);
+            return;
+        }
 
         abortRef.current?.abort();
         const controller = new AbortController();

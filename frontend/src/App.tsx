@@ -19,7 +19,7 @@ function App() {
 
                 {IS_DEMO_MODE && (
                     <div className="rounded-lg border border-blue-700/50 bg-blue-900/20 px-4 py-3 text-sm text-blue-200">
-                        Interactive demo — reports are pre-loaded from a sample Spring Boot microservice analysis.
+                        Interactive demo — click Analyze to run a simulated analysis on a sample Spring Boot microservice.
                         Apply Fix and Write Test are view-only.
                     </div>
                 )}
@@ -49,8 +49,10 @@ function App() {
                         <ExplorerReport report={state.explorerReport} />
                     )}
 
-                    {activeTab === 'explorer' && !state.explorerReport && !state.isAnalyzing && !IS_DEMO_MODE && (
-                        <EmptyState message="Enter a folder path and click Analyze to start." />
+                    {activeTab === 'explorer' && !state.explorerReport && !state.isAnalyzing && (
+                        <EmptyState message={IS_DEMO_MODE
+                            ? 'Click Analyze to start the demo analysis.'
+                            : 'Enter a folder path and click Analyze to start.'} />
                     )}
 
                     {activeTab === 'explorer' && state.isAnalyzing && !state.explorerReport && (
@@ -67,8 +69,10 @@ function App() {
                         />
                     )}
 
-                    {activeTab === 'engineer' && !state.engineerReport && !state.isAnalyzing && !IS_DEMO_MODE && (
-                        <EmptyState message="Run an analysis to see the Engineer report." />
+                    {activeTab === 'engineer' && !state.engineerReport && !state.isAnalyzing && (
+                        <EmptyState message={IS_DEMO_MODE
+                            ? 'Click Analyze to start the demo analysis.'
+                            : 'Run an analysis to see the Engineer report.'} />
                     )}
 
                     {activeTab === 'engineer' && state.isAnalyzing && !state.engineerReport && (
@@ -85,8 +89,10 @@ function App() {
                         />
                     )}
 
-                    {activeTab === 'security' && !state.securityReport && !state.isAnalyzing && !IS_DEMO_MODE && (
-                        <EmptyState message="Run an analysis to see the Security report." />
+                    {activeTab === 'security' && !state.securityReport && !state.isAnalyzing && (
+                        <EmptyState message={IS_DEMO_MODE
+                            ? 'Click Analyze to start the demo analysis.'
+                            : 'Run an analysis to see the Security report.'} />
                     )}
 
                     {activeTab === 'security' && state.isAnalyzing && !state.securityReport && (
