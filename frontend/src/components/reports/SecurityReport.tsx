@@ -292,13 +292,13 @@ function MissingAuthGuards({ guards }: { guards: SecurityOutput['missingAuthGuar
         <div className="space-y-1.5">
             {guards.map((guard, i) => (
                 <div key={`${guard.file}-${guard.endpoint}-${i}`} className="rounded border border-gray-700 bg-gray-800/50 px-3 py-2.5">
-                    <div className="flex items-center gap-2 text-xs text-gray-400">
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-gray-400">
                         <span className="text-red-400 text-sm">🔓</span>
                         <span className="font-mono">{guard.file}</span>
                         <span className="text-gray-600">·</span>
                         <span className="font-mono text-amber-300">{guard.endpoint}</span>
                     </div>
-                    <p className="text-sm text-gray-300 mt-1 ml-6">{guard.description}</p>
+                    <p className="text-sm text-gray-300 mt-1 ml-6 wrap-break-word">{guard.description}</p>
                 </div>
             ))}
         </div>
