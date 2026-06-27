@@ -62,7 +62,12 @@ function App() {
                     )}
 
                     {activeTab === 'security' && state.securityReport && (
-                        <SecurityReport report={state.securityReport} />
+                        <SecurityReport
+                            report={state.securityReport}
+                            codebasePath={state.codebasePath}
+                            applyChange={applyChange}
+                            appliedChanges={state.appliedChanges}
+                        />
                     )}
 
                     {activeTab === 'security' && !state.securityReport && !state.isAnalyzing && (

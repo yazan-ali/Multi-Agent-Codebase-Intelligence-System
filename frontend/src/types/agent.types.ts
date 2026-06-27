@@ -69,6 +69,8 @@ export interface SecurityOutput {
         owaspCategory: string;
         description: string;
         fix: string;
+        before: string;
+        after: string;
     }[];
     hardcodedSecrets: {
         file: string;

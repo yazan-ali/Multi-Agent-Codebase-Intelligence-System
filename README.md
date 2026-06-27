@@ -90,25 +90,27 @@ Scans for vulnerabilities and attack surface, prioritizing files that handle aut
 | Output                | What it tells you                                     |
 | --------------------- | ----------------------------------------------------- |
 | Risk score            | 0–100 overall security posture                        |
-| Vulnerabilities       | Severity, OWASP category, file:line, description, fix |
+| Vulnerabilities       | Severity, OWASP category, file:line, description, fix, before/after |
 | Hardcoded secrets     | API keys, passwords, tokens in source                 |
 | Missing auth guards   | Endpoints without authentication/authorization        |
 | Insecure dependencies | Risky packages from manifest files                    |
 
 **Powers:** risk gauge, severity breakdown, OWASP category chart, secrets and auth-guard panels.
 
-### Apply Fix — on-demand code patcher
+**Powers:** risk gauge, severity breakdown, OWASP category chart, secrets and auth-guard panels, expandable vulnerability diffs with Apply Fix.
 
-Runs when you accept an Engineer issue fix from the UI. It is not part of the analysis pipeline.
+### Apply Fix — on-demand code editor
 
-| Input | What it does |
-| ----- | ------------ |
-| Full source file | Reads the file from disk |
-| Issue description + before/after preview | Applies the fix across the whole file, not just the snippet shown in the report |
+Runs when you accept a fix from the UI. It is not part of the analysis pipeline — one agent handles both issue fixes and test merges.
 
-Engineer issues show short before/after previews. A rename or refactor often affects more than those lines. Apply Fix uses Gemini to return the complete corrected file and writes it back.
+| Mode | Trigger | What it does |
+| ---- | ------- | ------------ |
+| Issue fix | Apply Fix on Engineer issue or Security vulnerability | Reads the full source file, applies the before/after fix across the whole file (not just the snippet), writes back |
+| Test merge | Write Test when the target test file already exists | Merges new test code intelligently — consolidates imports, avoids duplicate classes, adds methods to existing test classes |
 
-**Powers:** **Apply Fix** button on Engineer issues — one click to patch the codebase.
+Reports show short before/after previews. A rename or security patch often affects more than those lines. Apply Fix uses Gemini to return the complete modified file.
+
+**Powers:** **Apply Fix** on Engineer and Security issues; **Write Test** on Engineer suggested tests (creates new file or merges into existing).
 
 ## The dashboard
 
@@ -120,11 +122,11 @@ Walk the codebase structure visually — dependency graph with layer colors and 
 
 ### Engineer tab
 
-See quality at a glance, drill into issues grouped by file with before/after snippets, and apply fixes with the Apply Fix agent.
+See quality at a glance, drill into issues grouped by file with before/after snippets, apply fixes with the Apply Fix agent, and write suggested tests (creates or merges into existing test files).
 
 ### Security tab
 
-Understand risk level, read vulnerabilities sorted by severity with recommended fixes, and spot secrets or unprotected endpoints.
+Understand risk level, read vulnerabilities sorted by severity with recommended fixes and before/after diffs, apply fixes with one click, and spot secrets or unprotected endpoints.
 
 ### Final report tab
 
@@ -156,6 +158,8 @@ Agent outputs are **cached per codebase path**. On re-analysis, the system compa
 ## Tech stack
 
 React + TypeScript + Tailwind on the frontend. Node + Express + TypeScript on the backend. Gemini 2.5 Flash for agent calls (Explorer, Engineer, Security, Apply Fix). React Flow for dependency graphs. Zod for validation. SSE for streaming.
+
+Apply Fix is a single on-demand agent with two modes: `issue-fix` (Engineer + Security patches) and `test-merge` (smart test file integration).
 
 ## Quick start
 

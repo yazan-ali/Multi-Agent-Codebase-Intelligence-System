@@ -44,5 +44,7 @@ ${formattedFiles}
 Here is the Explorer's report:
 ${JSON.stringify(explorerReport)}
 
-Return your analysis as JSON matching the SecurityOutput schema.`;
+For vulnerabilities: include before/after code snippets for each finding. before must be an exact copy from the source; after must be the fixed code. fix is a short summary of the recommended fix.
+
+Return ONLY a valid JSON object matching the SecurityOutput schema. No markdown fences, no prose outside JSON. Code snippets go in before/after as escaped JSON strings.`;
 }

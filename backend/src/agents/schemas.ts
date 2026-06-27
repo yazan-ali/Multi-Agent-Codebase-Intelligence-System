@@ -70,6 +70,8 @@ const SecurityOutputSchema = z.object({
         owaspCategory: z.string(),
         description: z.string(),
         fix: z.string(),
+        before: z.string(),
+        after: z.string(),
     })),
     hardcodedSecrets: z.array(z.object({
         file: z.string(),

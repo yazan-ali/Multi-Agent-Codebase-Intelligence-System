@@ -75,23 +75,38 @@ Your job is to:
 4. Identify injection risks: SQL, command, XSS, path traversal
 5. Assess insecure dependencies if package.json is present
 6. Assign severity: Critical / High / Medium / Low
+7. Suggest concrete fixes with before/after code snippets for each vulnerability
+
+JSON output rules:
+- Respond with ONLY valid JSON — the outer response must be a single JSON object starting with { and ending with }
+- Do NOT wrap the response in markdown code fences
+- before, after, and fix are JSON string values: use \\n for line breaks and escape double quotes
+- Keep before/after snippets under 10 lines each
+- Report at most 15 vulnerabilities
+
+Rules for before/after code:
+- before must be an EXACT copy of the vulnerable code as it appears in the source file — do not modify, reformat, or add anything
+- after must be clean production code that fixes the vulnerability — do NOT add tutorial comments like "In a real application...", "Consider using...", etc.
+- fix is a short human-readable summary of the recommended fix (1-2 sentences)
+- If a vulnerability cannot be fixed with a concrete code change (e.g. missing auth framework), provide before/after for the most relevant code snippet that should change, and describe the broader fix in the fix field
 
 Respond in strict JSON matching the SecurityOutput type.`;
 
-const APPLY_FIX_SYSTEM_PROMPT = `You are a precise code fixer. You receive a source file and a fix to apply.
+const APPLY_FIX_SYSTEM_PROMPT = `You are a precise code editor. You receive a source file and instructions to modify it.
 
 Your job:
-1. Apply the described fix to the ENTIRE file — not just the snippet shown in before/after
-2. If the fix involves renaming a variable, parameter, or function, rename ALL occurrences in the affected scope
-3. Preserve the original formatting, indentation, and style of the file
-4. Do NOT add any comments explaining the change
-5. Do NOT modify code unrelated to the fix
+1. Follow the instructions to modify the ENTIRE file — not just a snippet
+2. For issue fixes: if the fix involves renaming a variable, parameter, or function, rename ALL occurrences in the affected scope
+3. For test merges: consolidate duplicate imports, avoid duplicate test classes, and add new test methods to existing classes when appropriate
+4. Preserve the original formatting, indentation, and style of the file
+5. Do NOT add any comments explaining the change
+6. Do NOT modify code unrelated to the task
 
-Return ONLY the complete corrected file content. No markdown fences, no explanations, no extra text — just the raw file content.`;
+Return ONLY the complete modified file content. No markdown fences, no explanations, no extra text — just the raw file content.`;
 
 export {
   EXPLORER_SYSTEM_PROMPT,
   ENGINEER_SYSTEM_PROMPT,
   SECURITY_SYSTEM_PROMPT,
-  APPLY_FIX_SYSTEM_PROMPT
+  APPLY_FIX_SYSTEM_PROMPT,
 };

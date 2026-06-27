@@ -1,10 +1,16 @@
 import { useState } from 'react';
-import type { SecurityOutput } from '../../types/agent.types';
+import type { SecurityOutput, ApplyChangeRequest, ApplyChangeResponse } from '../../types/agent.types';
 import { SectionPanel } from '../SectionPanel';
 import { MarkdownContent } from '../MarkdownContent';
 
+type ApplyFn = (req: ApplyChangeRequest) => Promise<ApplyChangeResponse>;
+type ApplyStatus = 'idle' | 'applying' | 'applied' | 'failed';
+
 interface SecurityReportProps {
     report: SecurityOutput;
+    codebasePath: string | null;
+    applyChange: ApplyFn;
+    appliedChanges: Set<string>;
 }
 
 const SEVERITY_STYLES = {
@@ -80,8 +86,78 @@ function SeverityBreakdown({ vulnerabilities }: { vulnerabilities: SecurityOutpu
     );
 }
 
-function VulnerabilityCard({ vuln }: { vuln: SecurityOutput['vulnerabilities'][number] }) {
+function CodeBlock({ code }: { code: string }) {
+    return (
+        <pre className="rounded bg-gray-950 border border-gray-700 px-3 py-2 text-xs font-mono text-gray-300 overflow-x-auto whitespace-pre-wrap">
+            {code}
+        </pre>
+    );
+}
+
+function ApplyButton({ status, label, onClick, errorMessage }: {
+    status: ApplyStatus;
+    label: string;
+    onClick: () => void;
+    errorMessage: string | null;
+}) {
+    if (status === 'applied') {
+        return (
+            <span className="inline-flex items-center gap-1.5 text-xs text-emerald-400 font-medium">
+                <span>&#10003;</span> Applied
+            </span>
+        );
+    }
+
+    return (
+        <div className="flex items-center gap-2">
+            <button
+                onClick={onClick}
+                disabled={status === 'applying'}
+                className="rounded bg-blue-600 px-3 py-1 text-xs font-medium text-white transition-colors hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+                {status === 'applying' ? 'Applying...' : label}
+            </button>
+            {status === 'failed' && errorMessage && (
+                <span className="text-xs text-red-400">{errorMessage}</span>
+            )}
+        </div>
+    );
+}
+
+function vulnKey(vuln: SecurityOutput['vulnerabilities'][number]): string {
+    return `issue-fix:${vuln.file}:${vuln.before.slice(0, 40)}`;
+}
+
+function VulnerabilityCard({ vuln, codebasePath, applyChange, isApplied }: {
+    vuln: SecurityOutput['vulnerabilities'][number];
+    codebasePath: string | null;
+    applyChange: ApplyFn;
+    isApplied: boolean;
+}) {
     const [expanded, setExpanded] = useState(false);
+    const [status, setStatus] = useState<ApplyStatus>(isApplied ? 'applied' : 'idle');
+    const [errorMsg, setErrorMsg] = useState<string | null>(null);
+    const canApply = Boolean(vuln.before && vuln.after);
+
+    const handleApply = async () => {
+        if (!codebasePath || !canApply) return;
+        setStatus('applying');
+        setErrorMsg(null);
+        const res = await applyChange({
+            codebasePath,
+            type: 'issue-fix',
+            file: vuln.file,
+            description: `${vuln.description}\n\nRecommended fix: ${vuln.fix}`,
+            before: vuln.before,
+            after: vuln.after,
+        });
+        if (res.success) {
+            setStatus('applied');
+        } else {
+            setStatus('failed');
+            setErrorMsg(res.message);
+        }
+    };
 
     return (
         <div className="rounded border border-gray-700 bg-gray-800/50">
@@ -105,18 +181,47 @@ function VulnerabilityCard({ vuln }: { vuln: SecurityOutput['vulnerabilities'][n
                 </span>
             </button>
             {expanded && (
-                <div className="border-t border-gray-700 px-3 py-3">
-                    <span className="text-[10px] uppercase font-semibold text-emerald-400 tracking-wider">Recommended Fix</span>
-                    <div className="mt-1 rounded bg-gray-950 border border-gray-700 px-3 py-2 text-sm text-gray-300">
-                        {vuln.fix}
+                <div className="border-t border-gray-700 px-3 py-3 space-y-2">
+                    <div>
+                        <span className="text-[10px] uppercase font-semibold text-emerald-400 tracking-wider">Recommended Fix</span>
+                        <div className="mt-1 rounded bg-gray-950 border border-gray-700 px-3 py-2 text-sm text-gray-300">
+                            {vuln.fix}
+                        </div>
                     </div>
+                    {vuln.before && (
+                        <div>
+                            <span className="text-[10px] uppercase font-semibold text-red-400 tracking-wider">Before</span>
+                            <CodeBlock code={vuln.before} />
+                        </div>
+                    )}
+                    {vuln.after && (
+                        <div>
+                            <span className="text-[10px] uppercase font-semibold text-emerald-400 tracking-wider">After</span>
+                            <CodeBlock code={vuln.after} />
+                        </div>
+                    )}
+                    {codebasePath && canApply && (
+                        <div className="pt-1">
+                            <ApplyButton
+                                status={status}
+                                label="Apply Fix"
+                                onClick={handleApply}
+                                errorMessage={errorMsg}
+                            />
+                        </div>
+                    )}
                 </div>
             )}
         </div>
     );
 }
 
-function VulnerabilitiesList({ vulnerabilities }: { vulnerabilities: SecurityOutput['vulnerabilities'] }) {
+function VulnerabilitiesList({ vulnerabilities, codebasePath, applyChange, appliedChanges }: {
+    vulnerabilities: SecurityOutput['vulnerabilities'];
+    codebasePath: string | null;
+    applyChange: ApplyFn;
+    appliedChanges: Set<string>;
+}) {
     if (vulnerabilities.length === 0) {
         return <p className="text-sm text-gray-500">No vulnerabilities detected.</p>;
     }
@@ -144,7 +249,13 @@ function VulnerabilitiesList({ vulnerabilities }: { vulnerabilities: SecurityOut
                     <h4 className="text-sm font-medium text-gray-200 font-mono mb-2">{file}</h4>
                     <div className="space-y-1.5">
                         {fileVulns.map((vuln, i) => (
-                            <VulnerabilityCard key={`${vuln.file}-${vuln.line}-${i}`} vuln={vuln} />
+                            <VulnerabilityCard
+                                key={`${vuln.file}-${vuln.line}-${i}`}
+                                vuln={vuln}
+                                codebasePath={codebasePath}
+                                applyChange={applyChange}
+                                isApplied={appliedChanges.has(vulnKey(vuln))}
+                            />
                         ))}
                     </div>
                 </div>
@@ -246,7 +357,7 @@ function OwaspBreakdown({ vulnerabilities }: { vulnerabilities: SecurityOutput['
     );
 }
 
-export function SecurityReport({ report }: SecurityReportProps) {
+export function SecurityReport({ report, codebasePath, applyChange, appliedChanges }: SecurityReportProps) {
     return (
         <div className="space-y-4">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -270,7 +381,12 @@ export function SecurityReport({ report }: SecurityReportProps) {
             </SectionPanel>
 
             <SectionPanel title="Vulnerabilities">
-                <VulnerabilitiesList vulnerabilities={report.vulnerabilities} />
+                <VulnerabilitiesList
+                    vulnerabilities={report.vulnerabilities}
+                    codebasePath={codebasePath}
+                    applyChange={applyChange}
+                    appliedChanges={appliedChanges}
+                />
             </SectionPanel>
 
             <SectionPanel title="OWASP Category Breakdown">

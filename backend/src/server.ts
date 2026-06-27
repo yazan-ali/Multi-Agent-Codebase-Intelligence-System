@@ -73,6 +73,7 @@ app.post('/api/apply-change', async (req: Request, res: Response) => {
             const fileContent = await fs.readFile(absolutePath, 'utf8');
 
             const corrected = await runApplyFix({
+                mode: 'issue-fix',
                 fileContent,
                 filePath: file,
                 description: description ?? '',
@@ -102,8 +103,19 @@ app.post('/api/apply-change', async (req: Request, res: Response) => {
 
             if (exists) {
                 const existing = await fs.readFile(absolutePath, 'utf8');
-                await fs.writeFile(absolutePath, existing + '\n\n' + testCode, 'utf8');
-                return res.json({ success: true, file: targetTestFile, message: 'Test code appended to existing file' });
+                const merged = await runApplyFix({
+                    mode: 'test-merge',
+                    filePath: targetTestFile,
+                    fileContent: existing,
+                    newTestCode: testCode,
+                });
+
+                if (!merged || merged.trim().length === 0) {
+                    return res.json({ success: false, file: targetTestFile, message: 'Merge agent returned empty content — test not applied' });
+                }
+
+                await fs.writeFile(absolutePath, merged, 'utf8');
+                return res.json({ success: true, file: targetTestFile, message: 'Test code merged into existing file' });
             } else {
                 await fs.mkdir(path.dirname(absolutePath), { recursive: true });
                 await fs.writeFile(absolutePath, testCode, 'utf8');

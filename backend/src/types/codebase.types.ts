@@ -52,13 +52,21 @@ interface FinalReport {
     securityReport: SecurityOutput | null;
 }
 
-interface ApplyFixInput {
-    fileContent: string;
-    filePath: string;
-    description: string;
-    before: string;
-    after: string;
-}
+type ApplyFixInput =
+    | {
+        mode: 'issue-fix';
+        fileContent: string;
+        filePath: string;
+        description: string;
+        before: string;
+        after: string;
+    }
+    | {
+        mode: 'test-merge';
+        fileContent: string;
+        filePath: string;
+        newTestCode: string;
+    };
 
 type AgentStatus = "done" | "failed";
 
